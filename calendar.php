@@ -10,6 +10,18 @@
 
 <body>
 <p> This is where you find events </p>
+
+<?php
+$date=getdate();
+$first=date_create($date['year']."-".$date['mon']."-1");
+echo "the first day of the month is: ";
+echo date_format($first,"l");
+$days=array("SUN","MON","TUE","WED","THU","FRI","SAT");
+for($i=0; $i<date_format($first, "w"); $i++)
+{
+	echo "$days[$i] ";
+}
+?>
 </body>
 
 <footer>
