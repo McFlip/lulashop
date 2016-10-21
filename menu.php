@@ -10,6 +10,7 @@
 }
 </style>
 <!-- TODO: top level banner graphics -->
+<header>
 <div class="w3-container w3-row w3-teal w-3top">
   <div class="w3-tag w3-jumbo w3-red">L</div>
   <div class="w3-tag w3-jumbo">U</div>
@@ -17,8 +18,7 @@
   <div class="w3-tag w3-jumbo">A</div>
 </div>
 
-<!-- Menu Script -->
-<!-- TODO:Insert the header and menu script -->
+<!-- Menu Section -->
 
 <div class="w3-row w3-grey w3-container">
 	<div class="w3-col m2 l1 w3-container"></div>
@@ -41,3 +41,4 @@
 	</div>
 	<div class="w3-col m2 l1 w3-container"></div>
 </div>
+</header>
