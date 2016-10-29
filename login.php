@@ -11,6 +11,25 @@
 	</style>
 </head>
 
+<?php
+//TODO: create account for this app
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "lulashop";
+// Connect to the database
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    // set the PDO error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+catch(PDOException $e)
+    {
+    echo "Connection failed: " . $e->getMessage();
+    die();
+    }
+?>
+
 <!--TODO: implement new seller validation  -->
 <body>
 <p> This is where you log in to the system or register as a new user </p>
@@ -21,30 +40,57 @@ $firstName=$lastName=$password=$email=$timezoneOffset=$subscribe=$socialLinks=$a
 //check required entries
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (empty($_POST["firstName"])) {
-    $firstNameErr = "First name is required";
+    $firstNameErr = "***First name is required";
   } else {
     $firstName = test_input($_POST["firstName"]);
     // check if name only contains letters and whitespace
     if (!preg_match("/^[a-zA-Z ]*$/",$firstName)) {
-      $firstNameErr = "Only letters and white space allowed";
+      $firstNameErr = "***Only letters and white space allowed";
     }
   }
   if (empty($_POST["lastName"])) {
-    $lastNameErr = "First name is required";
+    $lastNameErr = "***Last name is required";
   } else {
     $lastName = test_input($_POST["lastName"]);
     // check if name only contains letters and whitespace
     if (!preg_match("/^[a-zA-Z ]*$/",$lastName)) {
-      $lastNameErr = "Only letters and white space allowed";
+      $lastNameErr = "***Only letters and white space allowed";
     }
   }
   if (empty($_POST["email"])) {
-    $emailErr = "Email is required";
+    $emailErr = "***Email is required";
   } else {
     $email = test_input($_POST["email"]);
     // check if e-mail address is well-formed
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $emailErr = "Invalid email format";
+      $emailErr = "***Invalid email format";
+    }
+    // TODO: check if email already exists for new Registration
+    if (isset($_POST['btnRegisterUser'])) {
+			$sql = "SELECT `email` FROM `user` WHERE email='$email'";
+			$pdo = $conn->query($sql);
+			$result = $pdo->fetchColumn();
+			if ($result) {
+			  $emailErr = "***This email is already registered";
+			}
+    }
+		if (isset($_POST['btnRegisterMember'])) {
+			$sql = "SELECT `email` FROM `member` WHERE email='$email'";
+			$pdo = $conn->query($sql);
+			$result = $pdo->fetchColumn();
+			if ($result) {
+			  $emailErr = "***This email is already registered";
+			}
+    }
+    if (!isset($_POST["btnLogin"])) {
+      if ($_POST["password1"] !== $_POST["password2"]) {
+        $passwordErr = "***Passwords do not match";
+      }
+    }
+    if (isset($_POST["btnLogin"])) {
+      //verify login
+    } else {
+      //verify Registration
     }
   }
   if (empty($_POST["timezoneOffset"])) {
@@ -88,7 +134,7 @@ function test_input($data) {
 				<label class="w3-label w3-validate">Password</label>
 				<input class="w3-input w3-border" type="password" name="password" placeholder="password">
 			</div>
-			<p><input class="w3-button" type="submit" value="Login"></p>
+			<p><input class="w3-button" type="submit" name="btnLogin" value="Login"></p>
 		</div>
 	</form>
 </div>
@@ -140,7 +186,7 @@ function test_input($data) {
 			<option value="-5">EST(-5)</option>
 		</select>
 		<label class="w3-label">Please select your local timezone</label><span class="error"><?php echo $timezoneOffsetErr;?></span></p>
-		<p><input class="w3-button" type="submit" value="registerUser"></p>
+		<p><input class="w3-button" type="submit" name="btnRegisterUser" value="Register"></p>
 	</form>
 </div>
 
@@ -201,7 +247,7 @@ function test_input($data) {
 			<option value="-5">EST(-5)</option>
 		</select>
 		<label class="w3-label">Please select your local timezone</label><span class="error"><?php echo $timezoneOffsetErr;?></span></p>
-		<p><input class="w3-button" type="submit" value="registerMember"></p>
+		<p><input class="w3-button" type="submit" name="btnRegisterMember" value="Register"></p>
 	</form>
 </div>
 
@@ -219,6 +265,9 @@ function openLogin(formType) {
 </script>
 
 </body>
+
+<!-- close DB connection -->
+<?php $conn = null;?>
 
 <footer>
 <?php include 'foot.php'; ?>
