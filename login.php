@@ -122,7 +122,7 @@
 					//TODO:sql insert goes here
 					echo "Congratulations you have been successfuly registered! Please log in.\n";
 				} else {
-					echo "Unfortunately there was an error. Please go back to the registration tab.\n"; //TODO: automatically switch to
+					echo "Unfortunately there was an error. Please review the form.\n"; //script will automatically switch to correct form
 				}
 			}
 		}
@@ -285,7 +285,7 @@
 		</form>
 	</div>
 
-	<!-- TODO: On register success return to login. On fail go back to reg form -->
+<!-- script that controls what is displayed -->
 	<script>
 		openLogin("currentUser")
 		function openLogin(formType) {
@@ -297,6 +297,7 @@
 				document.getElementById(formType).style.display = "block";
 		}
 	</script>
+	<!-- On register success return to login. On fail go back to reg form -->
 	<?php
 		if ($isErr && isset($_POST["btnRegisterMember"])) {
 		  echo "<script>openLogin(\"newMember\")</script>";
