@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -90,7 +93,7 @@
 		<h3>Search by specifying an address and a search area in square miles.</h2>
 	</div>
 	<form class="w3-container">
-		<div class="w3-row-padding">	
+		<div class="w3-row-padding">
 			<div class="w3-quarter">
 				<label>Street1</label>
 				<input class="w3-input w3-border" type="text" name="street1" placeholder="street1">
@@ -121,7 +124,7 @@
 				</select>
 				<input class="w3-button" type="submit" value="Search">
 			</div>
-		</div>	
+		</div>
 	</form>
 </div>
 
@@ -137,7 +140,7 @@ function openSearch(searchMethod) {
 }
 </script>
 
-<!-- TODO: add in the following properties w/ our URL  
+<!-- TODO: add in the following properties w/ our URL
   &attribution_source=LuLa+Shop
   &attribution_web_url=http://localhost/lulashop/findconsultant.php -->
 <div class="w3-container w3-center">

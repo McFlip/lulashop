@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -118,7 +121,7 @@
 					$passwordErr = "***Password is required";
 				} else {
 					$table = $_POST["userType"];
-					$sql = "SELECT `firstName`, `lastName` FROM `$table` WHERE email='$email' AND password='$password'";
+					$sql = "SELECT `firstName`, `lastName`, `".$table."ID` AS 'userID' FROM `$table` WHERE email='$email' AND password='$password'";
 					$pdo = $conn->query($sql);
 					$result = $pdo->fetch();
 					if (!isset($result['firstName'])) {
@@ -126,6 +129,8 @@
 					} else {
 						//TODO: start session
 						echo "User ".$result["firstName"]." ".$result["lastName"]." has been logged in :D\n";
+						$_SESSION["userID"] = $result["userID"];
+						$_SESSION["userType"] = $table;
 					}
 				}
 			} else {
