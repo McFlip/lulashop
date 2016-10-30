@@ -36,7 +36,7 @@
 
 	<?php
 	// define variables and set to empty values
-	$firstNameErr=$lastNameErr=$passwordErr=$emailErr=$timezoneOffsetErr=$loginErr="";
+	$firstNameErr=$lastNameErr=$passwordErr=$emailErr=$timezoneOffsetErr=$loginErr=$isErr="";
 	$firstName=$lastName=$password=$email=$timezoneOffset=$subscribe=$socialLinks=$aboutMe="";
 	//check required entries
 	if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -82,6 +82,18 @@
 				if ($result) {
 					$emailErr = "***This email is already registered";
 				}
+				// check optional fields in member Registration
+				if (isset($_POST["aboutMe"])) {
+					$aboutMe = test_input($_POST["aboutMe"]);
+				}
+				if (isset($_POST["socialLinks"])) {
+					//TODO: sanatize social links
+					//1. tokenize input
+					//2. Foreach link verify valid url
+					//3. if find an Invalid url set error
+					//4. reassemble the string
+					$socialLinks = $_POST["socialLinks"];
+				}
 			}
 			if (!isset($_POST["btnLogin"])) {
 				$password1 = test_input($_POST["password1"]);
@@ -90,7 +102,14 @@
 					$passwordErr = "***Passwords do not match";
 				} else if(empty($password1)) {
 					$passwordErr = "***Password is required";
+				} else {
+					$password = $password1;
 				}
+			}
+			if (empty($_POST["timezoneOffset"])) {
+				$timezoneOffsetErr = "***Time Zone is required";
+			} else {
+				$timezoneOffset = $_POST["timezoneOffset"];
 			}
 			if (isset($_POST["btnLogin"])) {
 				//verify login
@@ -119,7 +138,61 @@
 					}
 				}
 				if (!$isErr) {
-					//TODO:sql insert goes here
+					//sql insert goes here
+					if (isset($_POST["btnRegisterUser"])) {
+						$table = "user";
+					} else {
+						$table = "member";
+					}
+					if ($table == "user") {
+						if ($_POST['subscribe']=="subscribed") {
+							$subscribed = "1";
+						} else {
+							$subscribed = "0";
+						}
+					} else {
+						$memberStart = date("Y-m-d");
+						$memberDuration = "180";
+						$memberPrice = "9.99";
+						$memberFree = "1";
+						$memberActive = "1";
+					}
+					$sql = "INSERT INTO $table
+					(
+						firstName,
+						lastName,
+						password,
+						email, ";
+					if ($table == "user") {
+						$sql = $sql."subscribed, ";
+					}
+					$sql = $sql." timezoneOffset";
+					if($table == "member") {
+						$sql = $sql.", memberStart, memberDuration, memberPrice, memberFree, memberActive, aboutMe, socialLinks";
+					}
+					$sql = $sql."
+					)
+					VALUES
+					(
+						'$firstName',
+						'$lastName',
+						'$password',
+						'$email', ";
+					if ($table == "user") {
+						$sql = $sql."'$subscribed', ";
+					}
+					$sql = $sql."'$timezoneOffset'";
+					if ($table == "member") {
+						$sql = $sql.", '$memberStart', '$memberDuration', '$memberPrice', '$memberFree', '$memberActive', '$aboutMe', '$socialLinks' ";
+					}
+					$sql = $sql.");";
+					echo $sql; echo "<br>"; //TODO: Delete me - for testing purposes
+					try {
+						$conn->exec($sql);
+					}
+					catch(PDOException $e) {
+						echo $sql . "<br>" . $e->getMessage();
+					}
 					echo "Congratulations you have been successfuly registered! Please log in.\n";
 				} else {
 					echo "Unfortunately there was an error. Please review the form.\n"; //script will automatically switch to correct form
