@@ -69,6 +69,13 @@ for($i=0; $i < $daysinmonth; $i++)
 	echo date_format($first, "d");
 	echo " </span>";
 	//TODO: insert SQL here. for each event on this day echo out.
+	//example for using timezones Going from UTC to local
+// 	$date = new DateTime('str_from_sql_query', new DateTimeZone('UTC'));
+// 	echo $date->format('Y-m-d H:i:sP') . "\n";
+	//$abbrev  = DateTimeZone::listAbbreviations();
+	//$timezoneName = $abbrev['str_from_sql_query'][0][timezone_id];
+// 	$date->setTimezone(new DateTimeZone('$timezoneName'));
+// 	echo $date->format('Y-m-d H:i:sP') . "\n";
 	echo "</div>";
 	date_add($first, date_interval_create_from_date_string("1 day"));
 }
