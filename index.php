@@ -46,7 +46,7 @@ function carousel() {
 
 <div class="w3-container">
 	<h1>About LuLa Shop</h1>
-	<p>LuLa Shop provides a convenient way for people to browse collections of LuLaRoe clothing from a favorite consultant or from all consultants as well as browse and sign up for events. Click on the Shop button to start looking at clothes. Click the Calendar button to browse events in your area or to host a party. Click the Find a Consultant button to search for consultants in your area. Click on the About the Styles button to learn about the different cuts and styles offered.</p>
+	<p>LuLa Shop provides a convenient way for people to browse collections of LuLaRoe clothing from a favorite consultant or from all consultants as well as browse and sign up for events. Click on the Shop button to start looking at clothes. Click the Calendar button to browse events in your area or to host a party. Click the Find a Consultant button to search for consultants in your area. Click on the About the Styles button to learn about the different cuts and styles offered. Click the My Profile button to manage addresses, view your invoices, and manage which sellers you follow.</p>
 </div>
 </body>
 <footer>

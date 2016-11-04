@@ -30,7 +30,7 @@ session_start();
 </head>
 
 <body>
-<p> This is where you check on orders that you have purchased </p>
+<p> This is where you check on orders that you have purchased, update your addresses, and manage which sellers you follow.</p>
 <div class="w3-container">
 	<p> The following orders have not shipped yet: <p>
 	<table class="w3-table w3-striped">
@@ -39,12 +39,14 @@ session_start();
 			<th>Date</th>
 		</tr>
 <?php
-	$userType = $_SESSION["userType"];
-	$user = $_SESSION["userID"];
-	$sql = "SELECT `invoiceNumber`, `_date` FROM `invoice` WHERE userID='$user'";
-	$pdo = $conn->query($sql);
-	while ($result = $pdo->fetch()) {
-		echo "<tr><td>".$result["invoiceNumber"]."</td><td>".$result["_date"]."</td></tr>";
+	if (isset($_SESSION["userID"])) {
+		$userType = $_SESSION["userType"];
+		$user = $_SESSION["userID"];
+		$sql = "SELECT `invoiceNumber`, `_date` FROM `invoice` WHERE userID='$user'";
+		$pdo = $conn->query($sql);
+		while ($result = $pdo->fetch()) {
+			echo "<tr><td>".$result["invoiceNumber"]."</td><td>".$result["_date"]."</td></tr>";
+		}
 	}
 ?>
 </table>

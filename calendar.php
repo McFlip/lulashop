@@ -9,6 +9,24 @@ session_start();
 <head>
   <title>LuLa Shop</title>
 	<?php include 'menu.php'; ?>
+	<?php
+	//TODO: create account for this app
+		$servername = "localhost";
+		$username = "root";
+		$password = "";
+		$dbname = "lulashop";
+		// Connect to the database
+		try {
+		$conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+		// set the PDO error mode to exception
+		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		}
+		catch(PDOException $e)
+		{
+			echo "Connection failed: " . $e->getMessage();
+			die();
+		}
+	?>
 </head>
 
 <body>
@@ -18,6 +36,20 @@ session_start();
 <li> step 2 - select month </li>
 <li> step 3 - select type of event you are searching for </li>
 </ul>
+<?php //TODO: Testing out a timezone offset based off user timeznone abbrev in database
+	echo "<p>TESTING LOCAL TIMEZONE : CURRENT LOCAL DATE & TIME:</p>";
+	$date = new DateTime('now', new DateTimeZone('UTC'));
+	$userType = $_SESSION["userType"];
+	$user = $_SESSION["userID"];
+	$sql = "SELECT `timezoneOffset` FROM `$userType` WHERE userID='$user'";
+	$pdo = $conn->query($sql);
+	$result = $pdo->fetchColumn();
+	$abbrev  = DateTimeZone::listAbbreviations();
+	$timezoneName = $abbrev[$result];
+	$timezoneName = $timezoneName[0]['timezone_id'];
+	$date->setTimezone(new DateTimeZone($timezoneName));
+	echo $date->format('Y-m-d H:i:sP') . "<br>";
+?>
 <!--TODO: Query Time Zone info to adjust dates. Record Dates in GMT. -->
 <!--calendar days heading - hide on small screens-->
 <div class="w3-row w3-container w3-hide-small">
@@ -56,7 +88,7 @@ for($i=0; $i < date_format($first, "w"); $i++)
 	echo "</div>";
 }
 $daysinmonth=cal_days_in_month(CAL_GREGORIAN, $date['mon'], $date['year']);
-$currentday=date_create();
+$currentday=date_create();  //TODO: Delete Me
 for($i=0; $i < $daysinmonth; $i++)
 {
 	if(date_format($first, "w")==0)

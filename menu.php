@@ -34,7 +34,7 @@
 	<div class="w3-col m3 l4  w3-container">
 		<div class="w3-btn-group w3-right">
 			<a href="cart.php"><button class="w3-btn w3-round-xxlarge w3-hover-blue">Shopping Cart</button></a>
-			<a href="orderstat.php"><button class="w3-btn w3-round-xxlarge w3-hover-teal">Order Status</button></a>
+			<a href="profile.php"><button class="w3-btn w3-round-xxlarge w3-hover-teal">My Profile</button></a>
 			<a href="login.php"><button class="w3-btn w3-round-xxlarge w3-hover-purple">Login/Sign Up</button></a>
 			<a href="dashboard.php"><button class="w3-btn w3-round-xxlarge w3-hover-orange">Dashboard</button></a>
 		</div>
