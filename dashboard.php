@@ -13,6 +13,11 @@ session_start();
 
 <body>
 <p> This is where you view the consultant dashboard to do consultant things :) </p>
+<div class="w3-container">
+  <h2>Create an inventory item</h2>
+  <a href="createinventory.php"><button class="w3-btn w3-green w3-large">Create Inventory</button></a>
+</div>
+
 </body>
 
 <footer>
