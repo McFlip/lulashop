@@ -114,7 +114,25 @@ session_start();
 			</div>
 		</div>
 		<div class="w3-row-padding">
-			<input class="w3-button" type="submit" name="submit" value="Create">
+			<div class="w3-quarter">
+				<input class="w3-check" type="checkbox" name="visible" value="visible"
+				<?php
+					if ($_SERVER["REQUEST_METHOD"] == "POST") {
+						if (isset($_POST['visible'])) {
+							echo "checked";
+						}
+					} else {
+						echo "checked";
+					}
+				?>>
+				<label class="w3-label">Visible to Shoppers</label>
+			</div>
+		</div>
+		<br><br>
+		<div class="w3-row-padding">
+			<div class="w3-quarter">
+				<input class="w3-button" type="submit" name="submit" value="Create">
+			</div>
 		</div>
 	</form>
 </div>
