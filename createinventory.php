@@ -66,7 +66,7 @@ session_start();
 				<label class="w3-label w3-validate">Style category</label><?php echo $categoryErr;?>
 			</div>
 			<div class="w3-quarter">
-				<input class="w3-input w3-border" type="number" name="quantity" min="0" value="0" required>
+				<input class="w3-input w3-border" type="number" name="quantity" min="1" value="1" required>
 				<label class="w3-label w3-validate">Quantity (enter numbers only)</label><span class="error"><?php echo $quantityErr;?></span>
 			</div>
 			<div class="w3-quarter">
@@ -94,11 +94,153 @@ session_start();
 			</div>
 		</div>
 		<div class="w3-row-padding">
-			<div class="w3-half">
-				<input class="w3-input w3-border" type="text" name="color" placeholder="enter colors in descending order of dominance" required>
-				<label class="w3-label w3-validate">Color</label><?php echo $colorErr;?>
-			</div>
-			<div class="w3-half">
+					<div class="w3-rest"><fieldset><legend>Colors<?php echo $colorErr ?></legend>
+				<input class="w3-check" type="checkbox" name="green" value="green"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['green'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">green</label>
+				<input class="w3-check" type="checkbox" name="teal" value="teal"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['teal'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">teal</label>
+				<input class="w3-check" type="checkbox" name="blue" value="blue"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['blue'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">blue</label>
+				<input class="w3-check" type="checkbox" name="purple" value="purple"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['purple'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">purple</label>
+				<input class="w3-check" type="checkbox" name="red" value="red"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['red'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">red</label>
+				<input class="w3-check" type="checkbox" name="pink" value="pink"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['pink'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">pink</label>
+				<input class="w3-check" type="checkbox" name="flesh" value="flesh"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['flesh'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">flesh</label>
+				<input class="w3-check" type="checkbox" name="tan" value="tan"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['tan'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">tan</label>
+				<input class="w3-check" type="checkbox" name="brown" value="brown"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['brown'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">brown</label>
+				<input class="w3-check" type="checkbox" name="black" value="black"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['black'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">black</label>
+				<input class="w3-check" type="checkbox" name="lime" value="lime"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['lime'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">lime</label>
+				<input class="w3-check" type="checkbox" name="yellow" value="yellow"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['yellow'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">yellow</label>
+				<input class="w3-check" type="checkbox" name="orange" value="orange"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['orange'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">orange</label>
+				<input class="w3-check" type="checkbox" name="grey" value="grey"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['grey'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">grey</label>
+				<input class="w3-check" type="checkbox" name="maroon" value="maroon"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['maroon'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">maroon</label>
+				<input class="w3-check" type="checkbox" name="white" value="white"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				  if (isset($_POST['white'])) {
+				    echo "checked";
+				  }
+				}
+				?>>
+				<label class="w3-label">white</label>
+			</fieldset></div>
+			<div class="w3-third">
 				<input class="w3-input w3-border" type="text" name="pattern" placeholder="describe the pattern" required>
 				<label class="w3-label w3-validate">Pattern</label><?php echo $patternErr;?>
 			</div>
