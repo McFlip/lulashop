@@ -13,13 +13,65 @@ session_start();
 
 <body>
 <?php
-	$priceErr=$categoryErr=$quantityErr=$sizeErr=$colorErr=$patternErr="";
+$priceErr=$categoryErr=$quantityErr=$sizeErr=$colorErr=$patternErr="";
+$pic1Err=$pic2Err=$pic3Err=$pic4Err=$pic5Err="";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// 	TODO: come up with a naming convention for pics
+// 	TODO: redo error msgs
+// 	TODO: form info saving and err checks
+// 	TODO: reset button
+// 	TODO: sql query next sku
+// 	TODO: sql inserts on 2 tables
+// 	TODO: create seperate update item page
+	$target_dir = "pics/";
+	$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+	$uploadOk = 1;
+	$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+	// Check if image file is a actual image or fake image
+	if(isset($_POST["submit"])) {
+		$check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+		    if($check !== false) {
+					echo "File is an image - " . $check["mime"] . ".";
+					$uploadOk = 1;
+				} else {
+					echo "File is not an image.";
+					$uploadOk = 0;
+				}
+	}
+	// Check if file already exists
+	if (file_exists($target_file)) {
+		echo "Sorry, file already exists.";
+		$uploadOk = 0;
+	}
+	// Check file size
+	if ($_FILES["fileToUpload"]["size"] > 500000) {
+		echo "Sorry, your file is too large.";
+		$uploadOk = 0;
+	}
+	// Allow certain file formats
+	if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+		&& $imageFileType != "gif" ) {
+		echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+		$uploadOk = 0;
+	}
+	// Check if $uploadOk is set to 0 by an error
+	if ($uploadOk == 0) {
+		echo "Sorry, your file was not uploaded.";
+		// if everything is ok, try to upload file
+	} else {
+		if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+			echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+		} else {
+			echo "Sorry, there was an error uploading your file.";
+		}
+	}
+}
 ?>
 <div class="w3-panel w3-blue w3-round-xlarge">
   <p>Create Inventory</p>
 </div>
 <div class="w3-container w3-card">
-	<form class="w3-container" method="post" action="createinventory.php">
+	<form class="w3-container" method="post" action="createinventory.php" enctype="multipart/form-data">
 		<div class="w3-row-padding">
 			<div class="w3-quarter">
 				<input class="w3-input w3-border" type="number" name="price" min="0" value="0" required>
@@ -27,41 +79,39 @@ session_start();
 			</div>
 			<div class="w3-quarter">
 				<select class="w3-select" name="category" required>
-<!-- 	TODO: alphabetize this list	 -->
 					<option value="" disabled selected>Choose Style</option>
-					<option value="sloan">sloan</option>
-					<option value="sarah">sarah</option>
-					<option value="randy">randy</option>
-					<option value="maxi">maxi</option>
+					<option value="adeline">adeline</option>
+					<option value="amelia">amelia</option>
+					<option value="ana">ana</option>
+					<option value="azure">azure</option>
+					<option value="bianka">bianka</option>
+					<option value="carly">carly</option>
+					<option value="cassie">cassie</option>
+					<option value="classict">classic t</option>
+					<option value="gracie">gracie</option>
+					<option value="irma">irma</option>
+					<option value="jade">jade</option>
+					<option value="jill">jill</option>
+					<option value="jordan">jordan</option>
+					<option value="joy">joy</option>
+					<option value="julia">julia</option>
+					<option value="kidsazure">kids azure</option>
+					<option value="kidsleggings">kids leggings</option>
+					<option value="leggings">leggings</option>
+					<option value="lindsay">lindsay</option>
+					<option value="lola">lola</option>
 					<option value="lucy">lucy</option>
 					<option value="madison">madison</option>
+					<option value="mae">mae</option>
+					<option value="mark">mark</option>
+					<option value="maxi">maxi</option>
 					<option value="monroe">monroe</option>
 					<option value="nicole">nicole</option>
-					<option value="perfectt">perfect t</option>
-					<option value="mark">mark</option>
-					<option value="mae">mae</option>
-					<option value="lola">lola</option>
-					<option value="leggings">leggings</option>
-					<option value="kidsleggings">kids leggings</option>
-					<option value="kidsazure">kids azure</option>
-					<option value="julia">julia</option>
-					<option value="joy">joy</option>
-					<option value="jordan">jordan</option>
-					<option value="jill">jill</option>
-					<option value="jade">jade</option>
-					<option value="irma">irma</option>
-					<option value="gracie">gracie</option>
-					<option value="classict">classic t</option>
-					<option value="cassie">cassie</option>
-					<option value="ana">ana</option>
-					<option value="amelia">amelia</option>
-					<option value="carly">carly</option>
 					<option value="patrick">patrick</option>
-					<option value="bianka">bianka</option>
-					<option value="adeline">adeline</option>
-					<option value="azure">azure</option>
-					<option value="lindsay">lindsay</option>
-					<option value="irma">irma</option>
+					<option value="perfectt">perfect t</option>
+					<option value="randy">randy</option>
+					<option value="sarah">sarah</option>
+					<option value="sloan">sloan</option>
 				</select>
 				<label class="w3-label w3-validate">Style category</label><?php echo $categoryErr;?>
 			</div>
@@ -269,6 +319,11 @@ session_start();
 				?>>
 				<label class="w3-label">Visible to Shoppers</label>
 			</div>
+		</div>
+		<div class="w3-row-padding">
+			<fieldset><legend>Upload Pictures</legend>
+				<input type="file" name="fileToUpload" id="fileToUpload">
+			</fieldset>
 		</div>
 		<br><br>
 		<div class="w3-row-padding">
