@@ -86,6 +86,7 @@ session_start();
 					$emailErr = "***This email is already registered";
 				}
 				// check optional fields in member Registration
+				// TODO: Change the about me section to a txt file instead of a txt field in DB
 				if (isset($_POST["aboutMe"])) {
 					$aboutMe = test_input($_POST["aboutMe"]);
 				}
