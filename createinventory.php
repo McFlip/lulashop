@@ -20,52 +20,118 @@ $priceErr=$categoryErr=$quantityErr=$sizeErr=$colorErr=$patternErr="";
 $pic1Err=$pic2Err=$pic3Err=$pic4Err=$pic5Err="";
 $arrPicErr = array($pic1Err,$pic2Err,$pic3Err,$pic4Err,$pic5Err);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	if (empty($_POST["price"])){
+		$priceErr="***Price is required";
+	} else {
+		if ($price = filter_var($_POST["price"]) == false) {
+			$priceErr="***Price must be an integer";
+		}
+	}
+	if (empty($_POST["category"])){
+		$categoryErr="***Style category is required";
+	}
+	if (empty($_POST["quantity"])){
+		$priceErr="***Quantity is required";
+	} else {
+		if ($price = filter_var($_POST["price"]) == false) {
+			$priceErr="***Quantity must be an integer";
+		}
+	}
+	if (empty($_POST["size"])){
+		$sizeErr="***Size is required";
+	}
+	if (!isset($_POST["green"]) &&
+			!isset($_POST["teal"]) &&
+			!isset($_POST["blue"]) &&
+			!isset($_POST["purple"]) &&
+			!isset($_POST["red"]) &&
+			!isset($_POST["pink"]) &&
+			!isset($_POST["flesh"]) &&
+			!isset($_POST["tan"]) &&
+			!isset($_POST["brown"]) &&
+			!isset($_POST["black"]) &&
+			!isset($_POST["lime"]) &&
+			!isset($_POST["yellow"]) &&
+			!isset($_POST["orange"]) &&
+			!isset($_POST["grey"]) &&
+			!isset($_POST["maroon"]) &&
+			!isset($_POST["white"])){
+		$colorErr="***At least 1 color is required";
+	}
+	if (empty($_POST["pattern"])){
+		$patternErr="***Pattern is required";
+	} else {
+		$pattern = test_input($_POST["pattern"]);
+	}
+	if (!empty($_POST["fitfeel"])){
+		$fitfeel = test_input($_POST["fitfeel"]);
+	}
+	if (!empty($_POST["thread"])){
+		$thread = test_input($_POST["thread"]);
+	}
+// check for errors and prepare sql statement
+	$arrErr = array($priceErr,$categoryErr,$quantityErr,$sizeErr,$colorErr,$patternErr);
+	$isErr = false;
+	foreach ($arrErr as $error) {
+		if (!empty($error)) {
+			$isErr = true;
+		}
+	}
+	if (!isErr){
 // 	TODO: form info saving and err checks
 // 	TODO: sql query the sku we just inserted
 // 	TODO: sql inserts on 2 tables - only insert pic table on Inventory success and upload success
 // 	TODO: create seperate update item page
-	$target_dir = "pics/";
-	for($i=1; $i<6;$i++){
-		$uploadOk = 1;
-		$fileToUpload = "pic"."$i";
-		if(empty($_FILES["$fileToUpload"]["tmp_name"])){
-			continue;
-		}
-		//  rename the uploaded file according to the convention sku-[1-5].extension
-		$target_file = $target_dir . basename($_FILES["$fileToUpload"]["name"]);
-		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-		$name = "sku-"."$i"."."."$imageFileType";  //TODO: replace 'sku' w/ the actual sql queried sku
-		$_FILES["$fileToUpload"]["name"] = "$name";
-		$target_file = $target_dir . basename($_FILES["$fileToUpload"]["name"]);
-		// Check if image file is a actual image or fake image
-		$check = getimagesize($_FILES["$fileToUpload"]["tmp_name"]);
-		if($check == false) {
-			$uploadOk = 0;
-			$arrPicErr[$i-1] = "File is not an image.";
-		}
-		// Check file size  TODO: decide on a limit
-		/*if ($_FILES["$fileToUpload"]["size"] > 500000) {
-			$uploadOk = 0;
-			$arrPicErr[$i-1] = "Sorry, your file is too large.";
-		}*/
-		// Allow certain file formats
-		if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-			  && $imageFileType != "gif" ) {
-		  $uploadOk = 0;
-			$arrPicErr[$i-1] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-		}
-		// Check if $uploadOk is set to 0 by an error
-		if ($uploadOk == 0) {
-			echo "Sorry, your file was not uploaded.";
-			// if everything is ok, try to upload file
-		} else {
-			if (move_uploaded_file($_FILES["$fileToUpload"]["tmp_name"], $target_file)) {
-				echo "The file ". basename( $_FILES["$fileToUpload"]["name"]). " has been uploaded.";
+		$target_dir = "pics/";
+		for($i=1; $i<6;$i++){
+			$uploadOk = 1;
+			$fileToUpload = "pic"."$i";
+			if(empty($_FILES["$fileToUpload"]["tmp_name"])){
+				continue;
+			}
+			//  rename the uploaded file according to the convention sku-[1-5].extension
+			$target_file = $target_dir . basename($_FILES["$fileToUpload"]["name"]);
+			$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+			$name = "sku-"."$i"."."."$imageFileType";  //TODO: replace 'sku' w/ the actual sql queried sku
+			$_FILES["$fileToUpload"]["name"] = "$name";
+			$target_file = $target_dir . basename($_FILES["$fileToUpload"]["name"]);
+			// Check if image file is a actual image or fake image
+			$check = getimagesize($_FILES["$fileToUpload"]["tmp_name"]);
+			if($check == false) {
+				$uploadOk = 0;
+				$arrPicErr[$i-1] = "File is not an image.";
+			}
+			// Check file size  TODO: decide on a limit
+			/*if ($_FILES["$fileToUpload"]["size"] > 500000) {
+				$uploadOk = 0;
+				$arrPicErr[$i-1] = "Sorry, your file is too large.";
+			}*/
+			// Allow certain file formats
+			if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+					&& $imageFileType != "gif" ) {
+				$uploadOk = 0;
+				$arrPicErr[$i-1] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+			}
+			// Check if $uploadOk is set to 0 by an error
+			if ($uploadOk == 0) {
+				echo "Sorry, your file was not uploaded.";
+				// if everything is ok, try to upload file
 			} else {
-				echo "Sorry, there was an error uploading your file.";
+				if (move_uploaded_file($_FILES["$fileToUpload"]["tmp_name"], $target_file)) {
+					echo "The file ". basename( $_FILES["$fileToUpload"]["name"]). " has been uploaded.";
+				} else {
+					echo "Sorry, there was an error uploading your file.";
+				}
 			}
 		}
 	}
+}
+//sanatize input
+function test_input($data) {
+	$data = trim($data);
+	$data = stripslashes($data);
+	$data = htmlspecialchars($data);
+	return $data;
 }
 ?>
 <div class="w3-panel w3-blue w3-round-xlarge">
@@ -298,7 +364,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		</div>
 		<div class="w3-row-padding">
 			<div class="w3-half">
-				<input class="w3-input w3-border" type="text" name="color" placeholder="describe fit and feel (optional)">
+				<input class="w3-input w3-border" type="text" name="fitfeel" placeholder="describe fit and feel (optional)">
 				<label class="w3-label w3-validate">Fit & Feel</label>
 			</div>
 			<div class="w3-half">

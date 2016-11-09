@@ -128,7 +128,7 @@ session_start();
 					if (!isset($result['firstName'])) {
 						$loginErr = "***The email and/or password was incorrect";
 					} else {
-						//TODO: start session
+						//start session
 						echo "User ".$result["firstName"]." ".$result["lastName"]." has been logged in :D\n";
 						$_SESSION["userID"] = $result["userID"];
 						$_SESSION["userType"] = $table;
@@ -293,7 +293,6 @@ session_start();
 				echo "checked";
 			}
 			?>></p>
-	<!-- TODO: Use a python script to parse the tsv file timezones.txt and write out to xhtml -->
 			<p><select class="w3-select w3-quarter" name="timezoneOffset" required>
 				<option value="" disabled>Choose your timezone</option>
 				<option value="nut">nut -11:00</option>
@@ -701,7 +700,6 @@ session_start();
 					<label class="w3-label">Briefly tell us about yourself</label>
 				</div>
 			</div>
-	<!-- TODO: Use a python script to parse the tsv file timezones.txt and write out to xhtml -->
 			<p><select class="w3-select w3-quarter" name="timezoneOffset" required>
 				<option value="" disabled>Choose your timezone</option>
 				<option value="" disabled>Choose your timezone</option>
