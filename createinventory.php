@@ -80,7 +80,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			</div>
 			<div class="w3-quarter">
 				<select class="w3-select" name="category" required>
-					<option value="" disabled selected>Choose Style</option>
+				<?php
+					if($_SERVER["REQUEST_METHOD"] == "POST"){
+						echo "<option value=\"".$category."\" selected>".$category."</option>";
+					} else {
+						echo "<option value=\"\" disabled selected>Choose Style</option>";
+					}
+				?>
 					<option value="adeline">adeline</option>
 					<option value="amelia">amelia</option>
 					<option value="ana">ana</option>
@@ -122,7 +128,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			</div>
 			<div class="w3-quarter">
 				<select class="w3-select" name="size" required>
-					<option value="" disabled selected>Choose Size</option>
+				<?php
+					if($_SERVER["REQUEST_METHOD"] == "POST"){
+						echo "<option value=\"".$size."\" selected>".$size."</option>";
+					} else {
+						echo "<option value=\"\" disabled selected>Choose Size</option>";
+					}
+				?>
 					<option value="2t">2t</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
