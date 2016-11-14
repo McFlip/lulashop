@@ -20,25 +20,38 @@ $priceErr=$categoryErr=$quantityErr=$sizeErr=$colorErr=$patternErr="";
 $pic1Err=$pic2Err=$pic3Err=$pic4Err=$pic5Err="";
 $arrPicErr = array($pic1Err,$pic2Err,$pic3Err,$pic4Err,$pic5Err);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	if (isset($_POST["btnclear"])){
+		foreach ($_POST as $x => $y) {
+			$_POST["$x"] = null;
+		}
+	}
 	if (empty($_POST["price"])){
 		$priceErr="***Price is required";
+		$price = 0;
 	} else {
-		if ($price = filter_var($_POST["price"]) == false) {
+		if (($price = filter_var($_POST["price"], FILTER_VALIDATE_INT)) == false) {
 			$priceErr="***Price must be an integer";
+			$price = 0;
 		}
 	}
 	if (empty($_POST["category"])){
 		$categoryErr="***Style category is required";
+	} else {
+		$category = $_POST["category"];
 	}
 	if (empty($_POST["quantity"])){
-		$priceErr="***Quantity is required";
+		$quantityErr="***Quantity is required";
+		$quantity = 1;
 	} else {
-		if ($price = filter_var($_POST["price"]) == false) {
-			$priceErr="***Quantity must be an integer";
+		if (($quantity = filter_var($_POST["quantity"], FILTER_VALIDATE_INT)) == false) {
+			$quantityErr="***Quantity must be an integer";
+			$quantity = 1;
 		}
 	}
 	if (empty($_POST["size"])){
 		$sizeErr="***Size is required";
+	} else {
+		$size = $_POST["size"];
 	}
 	if (!isset($_POST["green"]) &&
 			!isset($_POST["teal"]) &&
@@ -69,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if (!empty($_POST["thread"])){
 		$thread = test_input($_POST["thread"]);
 	}
-// check for errors and prepare sql statement
+	// check for errors and prepare sql statement
 	$arrErr = array($priceErr,$categoryErr,$quantityErr,$sizeErr,$colorErr,$patternErr);
 	$isErr = false;
 	foreach ($arrErr as $error) {
@@ -77,8 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			$isErr = true;
 		}
 	}
-	if (!isErr){
-// 	TODO: form info saving and err checks
+	if (!$isErr){
 // 	TODO: sql query the sku we just inserted
 // 	TODO: sql inserts on 2 tables - only insert pic table on Inventory success and upload success
 // 	TODO: create seperate update item page
@@ -125,6 +137,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			}
 		}
 	}
+} else {
+	$price = 0;
+	$quantity = 1;
 }
 //sanatize input
 function test_input($data) {
@@ -141,7 +156,7 @@ function test_input($data) {
 	<form class="w3-container" method="post" action="createinventory.php" enctype="multipart/form-data">
 		<div class="w3-row-padding">
 			<div class="w3-quarter">
-				<input class="w3-input w3-border" type="number" name="price" min="0" value="0" required>
+				<input class="w3-input w3-border" type="number" name="price" min="0" value="<?php echo "$price"; ?>" required>
 				<label class="w3-label w3-validate">Price (enter numbers only)</label><span class="error"><?php echo $priceErr;?></span>
 			</div>
 			<div class="w3-quarter">
@@ -189,7 +204,7 @@ function test_input($data) {
 				<label class="w3-label w3-validate">Style category</label><?php echo $categoryErr;?>
 			</div>
 			<div class="w3-quarter">
-				<input class="w3-input w3-border" type="number" name="quantity" min="1" value="1" required>
+				<input class="w3-input w3-border" type="number" name="quantity" min="1" value="<?php echo "$quantity"; ?>" required>
 				<label class="w3-label w3-validate">Quantity (enter numbers only)</label><span class="error"><?php echo $quantityErr;?></span>
 			</div>
 			<div class="w3-quarter">
@@ -370,17 +385,17 @@ function test_input($data) {
 				<label class="w3-label">white</label>
 			</fieldset></div>
 			<div class="w3-third">
-				<input class="w3-input w3-border" type="text" name="pattern" placeholder="describe the pattern" required>
+							<input class="w3-input w3-border" type="text" name="pattern" placeholder="describe the pattern" <?php if(!empty($pattern)){echo "value=\"".$pattern."\"";} ?> required>
 				<label class="w3-label w3-validate">Pattern</label><?php echo $patternErr;?>
 			</div>
 		</div>
 		<div class="w3-row-padding">
 			<div class="w3-half">
-				<input class="w3-input w3-border" type="text" name="fitfeel" placeholder="describe fit and feel (optional)">
+				<input class="w3-input w3-border" type="text" name="fitfeel" placeholder="describe fit and feel (optional)" <?php if(!empty($fitfeel)){echo "value=\"".$fitfeel."\"";} ?> >
 				<label class="w3-label w3-validate">Fit & Feel</label>
 			</div>
 			<div class="w3-half">
-				<input class="w3-input w3-border" type="text" name="thread" placeholder="describe the thread content (optional)">
+				<input class="w3-input w3-border" type="text" name="thread" placeholder="describe the thread content (optional)" <?php if(!empty($thread)){echo "value=\"".$thread."\"";} ?>>
 				<label class="w3-label w3-validate">Thread Content</label>
 			</div>
 		</div>
@@ -430,6 +445,7 @@ function test_input($data) {
 			<div class="w3-quarter">
 				<input class="w3-button" type="submit" name="submit" value="Create">
 				<input class="w3-button" type="reset">
+				<input class="w3-button" type="submit" name="btnclear" value="Clear Out the Form">
 			</div>
 		</div>
 	</form>
