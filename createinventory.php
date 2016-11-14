@@ -1,5 +1,9 @@
 <?php
 session_start();
+if($_SESSION["userType"] != "member"){
+	echo "This page is only for sellers.";
+	die();
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -12,6 +16,24 @@ session_start();
 	<style>
 	.error {color: #FF0000;}
 	</style>
+	<?php
+	//TODO: create account for this app
+	$servername = "localhost";
+	$username = "root";
+	$password = "";
+	$dbname = "lulashop";
+	// Connect to the database
+	try {
+		$conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+		// set the PDO error mode to exception
+		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	}
+	catch(PDOException $e)
+	{
+		echo "Connection failed: " . $e->getMessage();
+		die();
+	}
+	?>
 </head>
 
 <body>
@@ -70,6 +92,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			!isset($_POST["maroon"]) &&
 			!isset($_POST["white"])){
 		$colorErr="***At least 1 color is required";
+	} else {
+		if(isset($_POST["green"])){$color = $color."green".",";}
+	if(isset($_POST["teal"])){$color = $color."teal".",";}
+	if(isset($_POST["blue"])){$color = $color."blue".",";}
+	if(isset($_POST["purple"])){$color = $color."purple".",";}
+	if(isset($_POST["red"])){$color = $color."red".",";}
+	if(isset($_POST["pink"])){$color = $color."pink".",";}
+	if(isset($_POST["flesh"])){$color = $color."flesh".",";}
+	if(isset($_POST["tan"])){$color = $color."tan".",";}
+	if(isset($_POST["brown"])){$color = $color."brown".",";}
+	if(isset($_POST["black"])){$color = $color."black".",";}
+	if(isset($_POST["lime"])){$color = $color."lime".",";}
+	if(isset($_POST["yellow"])){$color = $color."yellow".",";}
+	if(isset($_POST["orange"])){$color = $color."orange".",";}
+	if(isset($_POST["grey"])){$color = $color."grey".",";}
+	if(isset($_POST["maroon"])){$color = $color."maroon".",";}
+if(isset($_POST["white"])){$color = $color."white";}
 	}
 	if (empty($_POST["pattern"])){
 		$patternErr="***Pattern is required";
@@ -78,10 +117,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 	if (!empty($_POST["fitfeel"])){
 		$fitfeel = test_input($_POST["fitfeel"]);
+	} else {
+		$fitfeel = "NULL";
 	}
 	if (!empty($_POST["thread"])){
 		$thread = test_input($_POST["thread"]);
+	} else {
+		$thread = "NULL";
 	}
+	if (isset($_POST["visible"])){
+		$visible = 1;
+	}
+	$memberID = $_SESSION["userID"];
 	// check for errors and prepare sql statement
 	$arrErr = array($priceErr,$categoryErr,$quantityErr,$sizeErr,$colorErr,$patternErr);
 	$isErr = false;
@@ -94,6 +141,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // 	TODO: sql query the sku we just inserted
 // 	TODO: sql inserts on 2 tables - only insert pic table on Inventory success and upload success
 // 	TODO: create seperate update item page
+// 	TODO: ******Create the color string********
+		$sql = "INSERT INTO `inventory`
+		(
+		  price,
+		  quantity,
+			category,
+			size,
+			color,
+			fitFeel,
+			thread,
+			visible,
+			pattern,
+			memberID
+		)
+		VALUES
+		(
+		  '$price',
+			'$quantity',
+			'$category',
+			'$size',
+			'$color',
+			'$fitfeel',
+			'$thread',
+			'$visible',
+			'$pattern',
+			'$memberID'
+		)";
+		try {
+			$conn->exec($sql);
+		}
+		catch(PDOException $e) {
+			echo "Creation of inventory failed: " . $e->getMessage();
+			die(); //enforce ref integrity - don't upload pics if you cant attach to SKU
+		}
+		//Find the SKU of the item we just inserted
+		$sku = $conn->lastInsertId();
+		$stmt = $conn->prepare("INSERT INTO `picture`
+		(
+			picURL,
+			sku
+		)
+		VALUES
+		(
+			:picURL,
+			:sku
+		)");
+		$stmt->bindParam(':picURL', $target_file);
+		$stmt->bindParam(':sku', $sku);
 		$target_dir = "pics/";
 		for($i=1; $i<6;$i++){
 			$uploadOk = 1;
@@ -104,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			//  rename the uploaded file according to the convention sku-[1-5].extension
 			$target_file = $target_dir . basename($_FILES["$fileToUpload"]["name"]);
 			$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-			$name = "sku-"."$i"."."."$imageFileType";  //TODO: replace 'sku' w/ the actual sql queried sku
+			$name = "$sku"."-"."$i"."."."$imageFileType";  // example "sku"-1.jpg
 			$_FILES["$fileToUpload"]["name"] = "$name";
 			$target_file = $target_dir . basename($_FILES["$fileToUpload"]["name"]);
 			// Check if image file is a actual image or fake image
@@ -131,6 +226,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			} else {
 				if (move_uploaded_file($_FILES["$fileToUpload"]["tmp_name"], $target_file)) {
 					echo "The file ". basename( $_FILES["$fileToUpload"]["name"]). " has been uploaded.";
+					$stmt->execute();
 				} else {
 					echo "Sorry, there was an error uploading your file.";
 				}
@@ -452,7 +548,8 @@ function test_input($data) {
 </div>
 
 </body>
-
+<!-- close DB connection -->
+<?php $conn = null;?>
 <footer>
 <?php include 'foot.php'; ?>
 </footer>
