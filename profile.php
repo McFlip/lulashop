@@ -53,7 +53,8 @@ session_start();
 </div>
 
 </body>
-
+<!-- close DB connection -->
+<?php $conn = null;?>
 <footer>
 <?php include 'foot.php'; ?>
 </footer>
