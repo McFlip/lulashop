@@ -93,22 +93,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			!isset($_POST["white"])){
 		$colorErr="***At least 1 color is required";
 	} else {
+		$color = ""; // csv string
 		if(isset($_POST["green"])){$color = $color."green".",";}
-	if(isset($_POST["teal"])){$color = $color."teal".",";}
-	if(isset($_POST["blue"])){$color = $color."blue".",";}
-	if(isset($_POST["purple"])){$color = $color."purple".",";}
-	if(isset($_POST["red"])){$color = $color."red".",";}
-	if(isset($_POST["pink"])){$color = $color."pink".",";}
-	if(isset($_POST["flesh"])){$color = $color."flesh".",";}
-	if(isset($_POST["tan"])){$color = $color."tan".",";}
-	if(isset($_POST["brown"])){$color = $color."brown".",";}
-	if(isset($_POST["black"])){$color = $color."black".",";}
-	if(isset($_POST["lime"])){$color = $color."lime".",";}
-	if(isset($_POST["yellow"])){$color = $color."yellow".",";}
-	if(isset($_POST["orange"])){$color = $color."orange".",";}
-	if(isset($_POST["grey"])){$color = $color."grey".",";}
-	if(isset($_POST["maroon"])){$color = $color."maroon".",";}
-if(isset($_POST["white"])){$color = $color."white";}
+		if(isset($_POST["teal"])){$color = $color."teal".",";}
+		if(isset($_POST["blue"])){$color = $color."blue".",";}
+		if(isset($_POST["purple"])){$color = $color."purple".",";}
+		if(isset($_POST["red"])){$color = $color."red".",";}
+		if(isset($_POST["pink"])){$color = $color."pink".",";}
+		if(isset($_POST["flesh"])){$color = $color."flesh".",";}
+		if(isset($_POST["tan"])){$color = $color."tan".",";}
+		if(isset($_POST["brown"])){$color = $color."brown".",";}
+		if(isset($_POST["black"])){$color = $color."black".",";}
+		if(isset($_POST["lime"])){$color = $color."lime".",";}
+		if(isset($_POST["yellow"])){$color = $color."yellow".",";}
+		if(isset($_POST["orange"])){$color = $color."orange".",";}
+		if(isset($_POST["grey"])){$color = $color."grey".",";}
+		if(isset($_POST["maroon"])){$color = $color."maroon".",";}
+		if(isset($_POST["white"])){$color = $color."white";}
 	}
 	if (empty($_POST["pattern"])){
 		$patternErr="***Pattern is required";
@@ -127,6 +128,8 @@ if(isset($_POST["white"])){$color = $color."white";}
 	}
 	if (isset($_POST["visible"])){
 		$visible = 1;
+	} else {
+		$visible = 0;
 	}
 	$memberID = $_SESSION["userID"];
 	// check for errors and prepare sql statement
@@ -138,10 +141,8 @@ if(isset($_POST["white"])){$color = $color."white";}
 		}
 	}
 	if (!$isErr){
-// 	TODO: sql query the sku we just inserted
-// 	TODO: sql inserts on 2 tables - only insert pic table on Inventory success and upload success
+// sql inserts on 2 tables - only insert pic table on Inventory success and upload success
 // 	TODO: create seperate update item page
-// 	TODO: ******Create the color string********
 		$sql = "INSERT INTO `inventory`
 		(
 		  price,
@@ -222,10 +223,11 @@ if(isset($_POST["white"])){$color = $color."white";}
 			// Check if $uploadOk is set to 0 by an error
 			if ($uploadOk == 0) {
 				echo "Sorry, your file was not uploaded.";
-				// if everything is ok, try to upload file
+				// if everything is ok, try to upload file and update picture table
 			} else {
 				if (move_uploaded_file($_FILES["$fileToUpload"]["tmp_name"], $target_file)) {
 					echo "The file ". basename( $_FILES["$fileToUpload"]["name"]). " has been uploaded.";
+					//only execute the prepared sql statement on successful upload
 					$stmt->execute();
 				} else {
 					echo "Sorry, there was an error uploading your file.";
