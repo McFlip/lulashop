@@ -33,9 +33,25 @@ session_start();
 <p> This is where you shop for clothes :D yay! </p>
 <nav class="w3-sidenav w3-light-grey w3-card-2" style="width:160px;">
 	<form class="w3-container" method="post" action="shop.php">
-		<input class="w3-radio" type="radio" name="colorFilter" value="all" checked>
+		<input class="w3-radio" type="radio" name="colorFilter" value="all"
+		<?php
+		if ($_SERVER["REQUEST_METHOD"] == "POST") {
+			if ($_POST['colorFilter']=="all") {
+				echo "checked";
+			}
+		} else {
+			echo "checked";
+		}
+		?>>
 		<label class="w3-label">All Colors</label><br>
-		<input class="w3-radio" type="radio" name="colorFilter" value="filter">
+		<input class="w3-radio" type="radio" name="colorFilter" value="filter"
+		<?php
+		if ($_SERVER["REQUEST_METHOD"] == "POST") {
+			if ($_POST['colorFilter']=="filter") {
+				echo "checked";
+			}
+		}
+		?>>
 		<label class="w3-label">Filter Colors</label>
 		<div class="w3-accordion">
 			<a onclick="myAccFunc('colorAcc')" href="#">
@@ -188,9 +204,25 @@ session_start();
 				<label class="w3-label">white</label>
 			</div>
 		</div>
-		<input class="w3-radio" type="radio" name="styleFilter" value="all" checked>
+		<input class="w3-radio" type="radio" name="styleFilter" value="all"
+		<?php
+		if ($_SERVER["REQUEST_METHOD"] == "POST") {
+			if ($_POST['styleFilter']=="all") {
+				echo "checked";
+			}
+		} else {
+			echo "checked";
+		}
+		?>>
 		<label class="w3-label">All Styles</label><br>
-		<input class="w3-radio" type="radio" name="styleFilter" value="filter">
+		<input class="w3-radio" type="radio" name="styleFilter" value="filter"
+		<?php
+		if ($_SERVER["REQUEST_METHOD"] == "POST") {
+			if ($_POST['styleFilter']=="filter") {
+				echo "checked";
+			}
+		}
+		?>>
 		<label class="w3-label">Filter Styles</label>
 		<div class="w3-accordion">
 			<a onclick="myAccFunc('styleAcc')" href="#">
@@ -487,9 +519,25 @@ session_start();
 			<label class="w3-label">sloan</label><br>
 			</div>
 		</div>
-		<input class="w3-radio" type="radio" name="sizeFilter" value="all" checked>
+		<input class="w3-radio" type="radio" name="sizeFilter" value="all"
+		<?php
+		if ($_SERVER["REQUEST_METHOD"] == "POST") {
+			if ($_POST['sizeFilter']=="all") {
+				echo "checked";
+			}
+		} else {
+			echo "checked";
+		}
+		?>>
 		<label class="w3-label">All Sizes</label><br>
-		<input class="w3-radio" type="radio" name="sizeFilter" value="filter">
+		<input class="w3-radio" type="radio" name="sizeFilter" value="filter"
+		<?php
+		if ($_SERVER["REQUEST_METHOD"] == "POST") {
+			if ($_POST['sizeFilter']=="filter") {
+				echo "checked";
+			}
+		}
+		?>>
 		<label class="w3-label">Filter Sizes</label>
 		<div class="w3-accordion">
 			<a onclick="myAccFunc('sizeAcc')" href="#">
@@ -653,6 +701,7 @@ session_start();
 		</div>
 		<input class="w3-input w3-border" type="text" name="pattern" placeholder="pattern keywords" <?php if(!empty($pattern)){echo "value=\"".$pattern."\"";} ?> >
 		<label class="w3-label">pattern</label>
+		<input class="w3-button" type="submit" name="submit" value="Search">
 	</form>
 	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
@@ -660,6 +709,55 @@ session_start();
 
 <div class="w3-container" style="margin-left:160px">
 	<h4>Search Results</h4>
+	<?php
+	if ($_SERVER["REQUEST_METHOD"] == "POST"){
+		$sql = "SELECT * FROM `inventory`, `member` WHERE inventory.memberID=member.memberID AND `visible`=1";
+		if($_POST["colorFilter"]=="filter"){
+			echo "testes";
+			$arrColor = array("green","teal","blue","purple","red","pink","flesh","tan","brown","black","lime","yellow","orange","grey","maroon","white");
+			$color = "";
+			foreach ($arrColor as $c){
+				if (isset($_POST["$c"])){
+					if(empty($color)){
+						$color = "%".$c."%";
+						$sql = $sql." AND (`color` LIKE '"."$color"."' ";
+					} else {
+						$color = "%".$c."%";
+						$sql = $sql."OR `color` LIKE '"."$color"."' ";
+					}
+				}
+			}
+		} else {
+			$color = "";
+		}
+		if(!empty($color)){
+			$sql = $sql.")";
+		}
+		$sql = $sql.";";
+		echo $sql;
+		try {
+			$pdo = $conn->query($sql);
+		}
+		catch(PDOException $e) {
+			echo "Query of inventory failed: " . $e->getMessage();
+			die();
+		}
+		echo "<table class=\"w3-table w3-bordered\">";
+		echo "<tr class=\"w3-blue\"><th>Style</th><th>Size</th><th>Price</th><th>Consultant</th></tr>";
+		while ($result = $pdo->fetch()){
+			$sql = "SELECT `picURL` FROM `picture` WHERE `sku`=".$result["sku"].";";
+			$pdo2 = $conn->query($sql);
+			echo "<tr>";
+			while($pic = $pdo2->fetch()){
+				echo $pic["picURL"];
+				echo "<td><div class=\"w3-card-8\"><img src=\"".$pic["picURL"]."\" width=\"300\" height=\"300\"></div></td>";
+			}
+			echo "</tr><tr>";
+			echo "<td>".$result["category"]."</td><td>".$result["size"]."</td><td>".$result["price"]."</td><td>".$result["firstName"]." ".$result["lastName"]."</td></tr>";
+		}
+		echo "</table>";
+	}
+	?>
 	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 </div>
