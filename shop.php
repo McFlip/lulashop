@@ -703,6 +703,7 @@ session_start();
 		<label class="w3-label">pattern</label>
 		<input class="w3-button" type="submit" name="submit" value="Search">
 	</form>
+<!-- these breaks are to force a scrollbar for the sidenav search menu due to use of accordions. otherwise menu will go off edge of page -->
 	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 </nav>
@@ -710,10 +711,11 @@ session_start();
 <div class="w3-container" style="margin-left:160px">
 	<h4>Search Results</h4>
 	<?php
+// 	TODO: paginate the results
 	if ($_SERVER["REQUEST_METHOD"] == "POST"){
 		$sql = "SELECT * FROM `inventory`, `member` WHERE inventory.memberID=member.memberID AND `visible`=1";
+		//filter by color
 		if($_POST["colorFilter"]=="filter"){
-			echo "testes";
 			$arrColor = array("green","teal","blue","purple","red","pink","flesh","tan","brown","black","lime","yellow","orange","grey","maroon","white");
 			$color = "";
 			foreach ($arrColor as $c){
@@ -733,8 +735,33 @@ session_start();
 		if(!empty($color)){
 			$sql = $sql.")";
 		}
-		$sql = $sql.";";
-		echo $sql;
+		//filter by style
+		if($_POST["styleFilter"]=="filter"){
+			$arrStyle =  array("adeline","amelia","ana","azure","bianka","carly","cassie","classict","gracie","irma","jade","jill",
+												"jordan","joy","julia","kidsazure","kidsleggings","leggings","lindsay","lola","lucy","madison",
+												"mae","mark","maxi","monroe","nicole","patrick","perfectt","randy","sarah","sloan");
+			$style = "";
+			foreach ($arrStyle as $s){
+				if (isset($_POST["$s"])){
+					if(empty($style)){
+						$style = "%".$s."%";
+						$sql = $sql." AND (`category` LIKE '"."$style"."' ";
+					} else {
+						$style = "%".$s."%";
+						$sql = $sql."OR `category` LIKE '"."$style"."' ";
+					}
+				}
+			}
+		} else {
+			$style = "";
+		}
+		if(!empty($style)){
+			$sql = $sql.")";
+		}
+		//filter by size
+		//filter by pattern
+		$sql = $sql.";"; //terminate the sql statement
+		echo $sql;  //TODO: delete - for testing purposes
 		try {
 			$pdo = $conn->query($sql);
 		}
@@ -758,11 +785,13 @@ session_start();
 		echo "</table>";
 	}
 	?>
+<!-- TODO: delete these breaks - for testing purposes	 -->
 	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 </div>
 
 <script>
+	// accordion function for sidenav search menu
 	function myAccFunc(acc) {
 		var x = document.getElementById(acc);
 		if (x.className.indexOf("w3-show") == -1) {
