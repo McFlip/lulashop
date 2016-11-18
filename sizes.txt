@@ -1,0 +1,153 @@
+<input class="w3-check" type="checkbox" name="2t" value="2t"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['2t'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">2t</label><br>
+<input class="w3-check" type="checkbox" name="4" value="4"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['4'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">4</label><br>
+<input class="w3-check" type="checkbox" name="6" value="6"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['6'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">6</label><br>
+<input class="w3-check" type="checkbox" name="8" value="8"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['8'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">8</label><br>
+<input class="w3-check" type="checkbox" name="10" value="10"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['10'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">10</label><br>
+<input class="w3-check" type="checkbox" name="12" value="12"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['12'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">12</label><br>
+<input class="w3-check" type="checkbox" name="xxs" value="xxs"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['xxs'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">xxs</label><br>
+<input class="w3-check" type="checkbox" name="xs" value="xs"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['xs'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">xs</label><br>
+<input class="w3-check" type="checkbox" name="s" value="s"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['s'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">s</label><br>
+<input class="w3-check" type="checkbox" name="m" value="m"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['m'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">m</label><br>
+<input class="w3-check" type="checkbox" name="l" value="l"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['l'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">l</label><br>
+<input class="w3-check" type="checkbox" name="xl" value="xl"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['xl'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">xl</label><br>
+<input class="w3-check" type="checkbox" name="2xl" value="2xl"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['2xl'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">2xl</label><br>
+<input class="w3-check" type="checkbox" name="3xl" value="3xl"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['3xl'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">3xl</label><br>
+<input class="w3-check" type="checkbox" name="tween" value="tween"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['tween'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">tween</label><br>
+<input class="w3-check" type="checkbox" name="one size" value="one size"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['one size'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">one size</label><br>
+<input class="w3-check" type="checkbox" name="tall & curvy" value="tall & curvy"
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['tall & curvy'])) {
+    echo "checked";
+  }
+}
+?>>
+<label class="w3-label">tall & curvy</label><br>
