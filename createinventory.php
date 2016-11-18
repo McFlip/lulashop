@@ -143,6 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if (!$isErr){
 // sql inserts on 2 tables - only insert pic table on Inventory success and upload success
 // 	TODO: create seperate update item page
+// 	TODO: come up with a thumbnailing scheme
 		$sql = "INSERT INTO `inventory`
 		(
 		  price,

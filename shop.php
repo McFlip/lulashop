@@ -31,6 +31,18 @@ session_start();
 
 <body>
 <p> This is where you shop for clothes :D yay! </p>
+<?php
+	//sanatize input
+	function test_input($data) {
+		$data = trim($data);
+		$data = stripslashes($data);
+		$data = htmlspecialchars($data);
+		return $data;
+	}
+	if ($_SERVER["REQUEST_METHOD"] == "POST") {
+		$pattern = test_input($_POST["pattern"]);
+	}
+?>
 <nav class="w3-sidenav w3-light-grey w3-card-2" style="width:160px;">
 	<form class="w3-container" method="post" action="shop.php">
 		<input class="w3-radio" type="radio" name="colorFilter" value="all"
@@ -759,7 +771,30 @@ session_start();
 			$sql = $sql.")";
 		}
 		//filter by size
+		if($_POST["sizeFilter"]=="filter"){
+			$arrSize = array("2t","4","6","8","10","12","xxs","xs","s","m","l","xl","2xl","3xl","tween","one size","tall & curvy");
+			$size = "";
+			foreach ($arrSize as $s){
+				if (isset($_POST["$s"])){
+					if(empty($size)){
+						$size = "%".$s."%";
+						$sql = $sql." AND (`size` LIKE '"."$size"."' ";
+					} else {
+						$size = "%".$s."%";
+						$sql = $sql."OR `size` LIKE '"."$size"."' ";
+					}
+				}
+			}
+		} else {
+			$size = "";
+		}
+		if(!empty($size)){
+			$sql = $sql.")";
+		}
 		//filter by pattern
+		if(!empty($_POST["pattern"])) {
+			$sql = $sql." AND `pattern` LIKE '%".$pattern."%'";
+		}
 		$sql = $sql.";"; //terminate the sql statement
 		echo $sql;  //TODO: delete - for testing purposes
 		try {
@@ -776,7 +811,7 @@ session_start();
 			$pdo2 = $conn->query($sql);
 			echo "<tr>";
 			while($pic = $pdo2->fetch()){
-				echo $pic["picURL"];
+				echo $pic["picURL"];  //TODO: delete - for testing purposes
 				echo "<td><div class=\"w3-card-8\"><img src=\"".$pic["picURL"]."\" width=\"300\" height=\"300\"></div></td>";
 			}
 			echo "</tr><tr>";
