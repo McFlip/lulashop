@@ -41,7 +41,12 @@ session_start();
 	$date = new DateTime('now', new DateTimeZone('UTC'));
 	$userType = $_SESSION["userType"];
 	$user = $_SESSION["userID"];
-	$sql = "SELECT `timezoneOffset` FROM `$userType` WHERE userID='$user'";
+	$sql = "SELECT `timezoneOffset` FROM `$userType` WHERE ";
+	if($userType == "user"){
+	  $sql = $sql."	userID='$user'";
+	} else {
+		$sql = $sql."	memberID='$user'";
+	}
 	$pdo = $conn->query($sql);
 	$result = $pdo->fetchColumn();
 	$abbrev  = DateTimeZone::listAbbreviations();
