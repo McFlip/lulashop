@@ -756,11 +756,11 @@ session_start();
 			foreach ($arrStyle as $s){
 				if (isset($_POST["$s"])){
 					if(empty($style)){
-						$style = "%".$s."%";
-						$sql = $sql." AND (`category` LIKE '"."$style"."' ";
+						$style = $s;
+						$sql = $sql." AND (`category` = '"."$style"."' ";
 					} else {
-						$style = "%".$s."%";
-						$sql = $sql."OR `category` LIKE '"."$style"."' ";
+						$style = $s;
+						$sql = $sql."OR `category` = '"."$style"."' ";
 					}
 				}
 			}
@@ -777,11 +777,11 @@ session_start();
 			foreach ($arrSize as $s){
 				if (isset($_POST["$s"])){
 					if(empty($size)){
-						$size = "%".$s."%";
-						$sql = $sql." AND (`size` LIKE '"."$size"."' ";
+						$size = $s;
+						$sql = $sql." AND (`size` = '"."$size"."' ";
 					} else {
-						$size = "%".$s."%";
-						$sql = $sql."OR `size` LIKE '"."$size"."' ";
+						$size = $s;
+						$sql = $sql."OR `size` = '"."$size"."' ";
 					}
 				}
 			}
