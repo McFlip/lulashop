@@ -106,6 +106,27 @@ for($i=0; $i < $daysinmonth; $i++)
 	echo date_format($first, "d");
 	echo " </span>";
 	//TODO: insert SQL here. for each event on this day echo out.
+	//for a seller show their own calendar with all event types
+	if ($userType == "member") {
+// 		echo "testing".date_format($first, 'Y-m-d');
+		$sql = "SELECT `eventID`, `category`
+		FROM `event`
+		WHERE `_date` LIKE '%".date_format($first, 'Y-m-d')."%'
+		AND `memberID` = ".$user."
+		 ORDER BY `_date` ASC;";
+		echo "<form class=\"w3-container\" method=\"post\" action=\"showevent.php\" target=\"showevent\">";
+		$pdo = $conn->query($sql);
+		while ($result = $pdo->fetch()) {
+			echo "<input type=\"submit\" name=\"submit\" ";
+			echo "value=\"";
+			echo $result["category"];
+			echo "\">";
+			echo "<input type=\"number\" name=\"eventID\"hidden value=\"";
+			echo $result["eventID"];
+			echo "\">";
+		}
+		echo "</form>";
+	}
 	//example for using timezones Going from UTC to local
 // 	$date = new DateTime('str_from_sql_query', new DateTimeZone('UTC'));
 // 	echo $date->format('Y-m-d H:i:sP') . "\n";
@@ -118,7 +139,9 @@ for($i=0; $i < $daysinmonth; $i++)
 }
 ?>
 </div>
-
+<div class="w3-container">
+	<iframe name="showevent" height="500px" width="100%" src="showevent.php"></iframe>
+</div>
 </body>
 
 <footer>
