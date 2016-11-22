@@ -35,6 +35,15 @@ session_start();
 		$userType = $_SESSION["userType"];
 		$user = $_SESSION["userID"];
 		$eventID = $_POST["eventID"];
+		if (isset($_POST["submit"])) {
+			if ($_POST["submit"]=="DELETE") {
+				$sql = "DELETE FROM `event` WHERE `eventID` = ".$eventID.";";
+				$conn->exec($sql);
+				echo "This event has been deleted. Those following this event have been notified. <br>";
+				echo "This event will disappear from your calendar view when it is refreshed.";
+			}
+		}
+
 		$sql = "SELECT * FROM `event` WHERE `eventID` = ".$eventID.";";
 		$pdo = $conn->query($sql);
 		$result = $pdo->fetch();
@@ -48,6 +57,37 @@ session_start();
 		if ($userType == "member") {
 			echo "<form class=\"w3-container\" method=\"post\" action=\"showevent.php\">";
 			echo "<input type=\"submit\" name=\"submit\" value=\"DELETE\">";
+			echo "<input type=\"number\" name=\"eventID\"hidden value=\"";
+			echo $result["eventID"];
+			echo "\">";
+			echo "</form>";
+			echo "<form class=\"w3-container\" method=\"post\" action=\"createevent.php\" target=\"_parent\">";
+			echo "<input type=\"submit\" name=\"submit\" value=\"modify\">";
+			echo "<input type=\"number\" name=\"eventID\"hidden value=\"";
+			echo $result["eventID"];
+			echo "\">";
+			echo "<input type=\"number\" name=\"length\"hidden value=\"";
+			echo $result["length"];
+			echo "\">";
+			echo "<input type=\"text\" name=\"category\"hidden value=\"";
+			echo $result["category"];
+			echo "\">";
+			echo "<input type=\"number\" name=\"private\"hidden value=\"";
+			echo $result["private"];
+			echo "\">";
+			echo "<input type=\"text\" name=\"url\"hidden value=\"";
+			echo $result["url"];
+			echo "\">";
+			echo "<input type=\"number\" name=\"addressID\"hidden value=\"";
+			echo $result["addressID"];
+			echo "\">";
+			echo "<input type=\"number\" name=\"userID\"hidden value=\"";
+			echo $result["userID"];
+			echo "\">";
+			echo "<input type=\"number\" name=\"memberID\"hidden value=\"";
+			echo $result["memberID"];
+			echo "\">";
+			echo "<input type=\"number\" name=\"modify\"hidden value=\"1\">";
 			echo "</form>";
 		}
 	}
