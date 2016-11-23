@@ -18,7 +18,10 @@ session_start();
   <h2>Create an inventory item</h2>
   <a href="createinventory.php"><button class="w3-btn w3-green w3-large">Create Inventory</button></a>
 </div>
-
+<div class="w3-container">
+  <h2>Create an event</h2>
+  <a href="createevent.php"><button class="w3-btn w3-green w3-large">Create Event</button></a>
+</div>
 </body>
 
 <footer>
