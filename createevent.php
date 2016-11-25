@@ -38,41 +38,45 @@ if($_SESSION["userType"] != "member"){
 
 <body>
 <?php
-$lengthErr=$dateErr=$categoryErr=$urlErr="";
+$memberID = $_SESSION["userID"];
+$userID = "NULL";
+$startErr=$endErr=$categoryErr=$urlErr=$seasonErr="";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if (isset($_POST["btnclear"])){
 		foreach ($_POST as $x => $y) {
-			$_POST["$x"] = null;
+			$_POST["$x"] = "NULL";
 		}
 	}
-	if (empty($_POST["length"])){
-		$lengthErr="***length is required";
-		$length = 60;
+	if (empty($_POST["start"])){
+		$startErr="***starting date & time is required";
 	} else {
-		if (($length = filter_var($_POST["length"], FILTER_VALIDATE_INT)) == false) {
-			$lengthErr="***length must be an integer";
-			$length = 60;
-		}
+		$start = $_POST["start"];
+		var_dump($start);
 	}
-	if ($length < 1) {
-		$lengthErr="***length must be at least 1 minute";
-	}
-	if (empty($_POST["date"])){
-		$dateErr="***date is required";
+	if (empty($_POST["end"])){
+		$endErr="***ending date & time is required";
 	} else {
-		$date = $_POST["date"];
-		var_dump($date);
+		$end = $_POST["end"];
+		var_dump($end);
 	}
-	//TODO: consolidate date and time
-// 	if (empty($_POST["time"])){
-// 		$timeErr="***time is required";
-// 	} else {
-// 		$time = $_POST["time"];
-// 	}
 	if (empty($_POST["category"])){
 		$categoryErr="***event category is required";
 	} else {
 		$category = $_POST["category"];
+		if ($category == "season") {
+			if (empty($_POST["season"])){
+				$seasonErr="***keyword required for season event";
+			} else {
+				$season = test_input($_POST["season"]);
+				$sql = "SELECT `sku` FROM `inventory` WHERE `pattern` LIKE '%$season%';";
+				$pdo = $conn->query($sql);
+				if ($pdo->fetch()==false){
+					$seasonErr="The season keyword did not match to any inventory";
+				}
+			}
+		} else {
+			$season = "NULL";
+		}
 	}
 	if (!empty($_POST["url"])) {
 		$url = $_POST["url"];
@@ -81,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			$urlErr="***invalid url";
 		}
 	} else {
-		$url = 'null';
+		$url = "NULL";
 	}
 	if (isset($_POST["private"])){
 		$private = 1;
@@ -96,12 +100,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if (isset($_POST["addressID"])) {
 		$addressID = $_POST["addressID"];
 	} else {
-		$addressID = 'null';
+		$addressID = "NULL";
 	}
-	$memberID = $_SESSION["userID"];
-	$userID = 'null';
 	// check for errors and prepare sql statement
-	$arrErr = array($lengthErr,$dateErr,$categoryErr,$urlErr);
+	$arrErr = array($startErr,$endErr,$categoryErr,$urlErr,$seasonErr);
 	$isErr = false;
 	foreach ($arrErr as $error) {
 		if (!empty($error)) {
@@ -111,42 +113,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 	if (!$isErr && !$modify){
 // create event
-		$stmt = $conn->prepare("INSERT INTO `event`
-		(
-		  length,
-		  _date,
-			category,
-			private,
-			url,
-			addressID,
-			userID,
-			memberID
-		)
-		VALUES
-		(
-		  :length,
-			:dateTime,
-			:category,
-			:private,
-			:url,
-			:addressID,
-			:userID,
-			:memberID
-		)");
-		$stmt->bindParam(':length', $length);
-		$stmt->bindParam(':dateTime', $date);
-		$stmt->bindParam(':category', $category);
-		$stmt->bindParam(':private', $private);
-		$stmt->bindParam(':url', $url);
-		$stmt->bindParam(':addressID', $addressID);
-		$stmt->bindParam(':userID', $userID);
-		$stmt->bindParam(':memberID', $memberID);
-// 		$stmt->execute();
 		$sql = "INSERT INTO `event`
 		(
-			length,
-			_date,
+			start,
+			end,
 			category,
+			season,
 			private,
 			url,
 			addressID,
@@ -155,17 +127,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		)
 		VALUES
 		(
-			'$length',
-			'$date',
+			'$start',
+			'$end',
 			'$category',
-			'$private',
-			'$url',
-			'$addressID',
-			'$userID',
-			'$memberID'
+			$season,
+			$private,
+			$url,
+			$addressID,
+			$userID,
+			$memberID
 		)";
-echo "WTF OVER???????";
-echo "<br>".$sql;
+echo "<br>".$sql; //TODO: Delete me
 		try {
 			$conn->exec($sql);
 		}
@@ -173,13 +145,15 @@ echo "<br>".$sql;
 			echo "Creation of event failed: " . $e->getMessage();
 			die(); //enforce ref integrity - don't upload pics if you cant attach to SKU
 		}
+	} else if (!$isErr && $modify) {
+		//modify existing event
+
 	}
 } else {
-	$length = 60;
-	$url = null;
+	$url = "NULL";
+	$season = "NULL";
 	$modify = false;
 }
-//TODO:remove this function if not needed
 //sanatize input
 function test_input($data) {
 	$data = trim($data);
@@ -201,10 +175,6 @@ function test_input($data) {
 	<form class="w3-container" method="post" action="createevent.php">
 		<div class="w3-row-padding">
 			<div class="w3-quarter">
-				<input class="w3-input w3-border" type="number" name="length" min="1" value="<?php echo "$length"; ?>" required>
-				<label class="w3-label w3-validate">length in minutes (enter numbers only)</label><span class="error"><?php echo $lengthErr;?></span>
-			</div>
-			<div class="w3-quarter">
 				<select class="w3-select" name="category" required>
 				<?php
 					if($_SERVER["REQUEST_METHOD"] == "POST"){
@@ -217,19 +187,71 @@ function test_input($data) {
 					<option value="party">Party</option>
 					<option value="outofoffice">Out of Office</option>
 					<option value="fair">Party - Multi Consultant</option>
-				</select>
+					<option value="season">Season</option>
+					</select>
 				<label class="w3-label w3-validate">Event category</label><?php echo $categoryErr;?>
 			</div>
-			<div class="w3-rest">
-				<input type="date" name="date" required>
-				<label class="w3-label w3-validate">Date</label><span class="error"><?php echo $dateErr;?></span>
+			<div class="w3-quarter">
+				<input class="w3-input w3-border" type="text" name="season" placeholder="season"
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST"){
+					if($season != "NULL"){echo "value=\"$season\"";}
+				}
+				?>  >
+				<label class="w3-label w3-validate">Season keyword to match Item Pattern</label><span class="error"><?php echo $seasonErr;?></span>
+			</div>
+			<div class="w3-quarter">
+				<input type="datetime-local" name="start" required
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST"){
+					echo "value=\"$start\"";
+				}
+				?>  >
+				<label class="w3-label w3-validate">Start Date-Time</label><span class="error"><?php echo $startErr;?></span>
+			</div>
+				<input type="datetime-local" name="end" required
+				<?php
+				if ($_SERVER["REQUEST_METHOD"] == "POST"){
+					echo "value=\"$end\"";
+				}
+				?>  >
+				<label class="w3-label w3-validate">End Date-Time</label><span class="error"><?php echo $endErr;?></span>
 			</div>
 		</div>
 
 		<div class="w3-row-padding">
 			<div class="w3-rest">
-				<input class="w3-input w3-border" type="url" name="url" placeholder="link to online event or post about event" <?php if($url != null){echo "value=\"".$url."\"";} ?> >
+				<input class="w3-input w3-border" type="url" name="url" placeholder="link to online event or post about event"
+				<?php
+					if ($_SERVER["REQUEST_METHOD"] == "POST"){
+						if($url != "NULL"){echo "value=\"".$url."\"";}
+					}
+				 ?> >
 				<label class="w3-label w3-validate">URL</label>
+			</div>
+		</div>
+		<div class="w3-row-padding">
+			<div class="w3-rest">
+				<select class="w3-select" name="addressID">
+					<option value="NULL">This is an online event or address is TBD</option>
+					<?php
+						$sql = "SELECT * FROM `address` WHERE `ownerID`='m_".$memberID."';";
+						echo "<br>".$sql;
+						$pdo = $conn->query($sql);
+						while ($result = $pdo->fetch()) {
+							echo "<option value=\"".$result['addressID']."\"";
+							if ($_SERVER["REQUEST_METHOD"] == "POST"){
+								if ($result['addressID'] == $addressID){
+									echo "selected";
+								}
+							}
+							echo ">";
+							echo $result['street1']." ".$result['street2']." ".$result['appt']." ".$result['city']." ".$result['state']." ".$result['zip'];
+							echo "</option>";
+						}
+					?>
+				</select>
+				<label class="w3-label w3-validate">address</label>
 			</div>
 		</div>
 		<div class="w3-row-padding">
@@ -259,7 +281,7 @@ function test_input($data) {
 
 </body>
 <!-- close DB connection -->
-<?php $conn = null;?>
+<?php $conn = "NULL";?>
 <footer>
 <?php include 'foot.php'; ?>
 </footer>
