@@ -42,22 +42,36 @@ $memberID = $_SESSION["userID"];
 $userID = "NULL";
 $startErr=$endErr=$categoryErr=$urlErr=$seasonErr="";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	if (isset($_POST["btnclear"])){
-		foreach ($_POST as $x => $y) {
-			$_POST["$x"] = "NULL";
-		}
-	}
 	if (empty($_POST["start"])){
 		$startErr="***starting date & time is required";
 	} else {
 		$start = $_POST["start"];
-		var_dump($start);
+		$startLocal = $start; //save local timezone for display
+		var_dump($start); //TODO: Delete me
+		//translate from local to UTC
+		$sql = "SELECT `timezoneOffset` FROM `member` WHERE `memberID`=$memberID;";
+		$pdo = $conn->query($sql);
+		$result = $pdo->fetchColumn();
+		$abbrev  = DateTimeZone::listAbbreviations();
+		$timezoneName = $abbrev[$result];
+		$timezoneName = $timezoneName[0]['timezone_id'];
+		$start = new DateTime($start, new DateTimeZone($timezoneName));
+		$start = $start->setTimezone(new DateTimeZone('UTC'));
+		$start = $start->format('Y-m-d H:i:s');
+		$start[10] = 'T';
+		var_dump($start); //TODO: Delete me
 	}
 	if (empty($_POST["end"])){
 		$endErr="***ending date & time is required";
 	} else {
 		$end = $_POST["end"];
-		var_dump($end);
+		$endLocal = $end;
+		//translate from local to UTC
+		$end = new DateTime($end, new DateTimeZone($timezoneName));
+		$end = $end->setTimezone(new DateTimeZone('UTC'));
+		$end = $end->format('Y-m-d H:i:s');
+		$end[10] = 'T';
+		var_dump($end); //TODO: Delete me
 	}
 	if (empty($_POST["category"])){
 		$categoryErr="***event category is required";
@@ -94,6 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 	if (isset($_POST["modify"])){
 		$modify = true;
+		$eventID = $_POST["eventID"];
 	} else {
 		$modify = false;
 	}
@@ -115,24 +130,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // create event
 		$sql = "INSERT INTO `event`
 		(
+			";
+		if($season != "NULL"){
+		 $sql .= "season,";
+		}
+		if($url != "NULL"){
+			$sql .= "url,";
+		}
+		$sql .= "
 			start,
 			end,
 			category,
-			season,
 			private,
-			url,
 			addressID,
 			userID,
 			memberID
 		)
 		VALUES
-		(
+		(";
+		if($season != "NULL"){
+		  $sql .= "'$season',";
+		}
+		if($url != "NULL"){
+		  $sql .= "'$url',";
+		}
+		$sql .= "
 			'$start',
 			'$end',
 			'$category',
-			$season,
 			$private,
-			$url,
 			$addressID,
 			$userID,
 			$memberID
@@ -143,11 +169,94 @@ echo "<br>".$sql; //TODO: Delete me
 		}
 		catch(PDOException $e) {
 			echo "Creation of event failed: " . $e->getMessage();
-			die(); //enforce ref integrity - don't upload pics if you cant attach to SKU
 		}
-	} else if (!$isErr && $modify) {
+	} else if (!$isErr && $modify && isset($_POST['submit'])) {
 		//modify existing event
-
+		//get existing values
+		$sql = "SELECT * FROM `event` WHERE eventID=$eventID";
+		echo "<br>".$sql;
+		try {
+			$pdo = $conn->query($sql);
+		} catch(PDOException $e){
+			echo "Error finding event to modify: ".$e->getMessage();
+			die();
+		}
+		$result = $pdo->fetch();
+		$oldStart = $result['start'];
+		$oldStart[10] = 'T';
+		$oldEnd = $result['end'];
+		$oldEnd[10] = 'T';
+		$oldCategory = $result['category'];
+		$oldSeason = $result['season'];
+		if ($oldSeason == NULL){
+		  $oldSeason = "NULL";
+		}
+		$oldPrivate = $result['private'];
+		$oldUrl = $result['url'];
+		if ($oldUrl == NULL){
+			$oldUrl="NULL";
+		}
+		$oldAddressID = $result['addressID'];
+		if ($oldAddressID == NULL){
+			$oldAddressID="NULL";
+		}
+		//compare against new values and build UPDATE statement
+		$sql = "UPDATE `event` SET ";
+		$nochange = $sql; //save for reference
+		if ($start != $oldStart) {
+			$sql = $sql."`start`='$start'";
+		}
+		if ($end != $oldEnd) {
+			if ($sql != $nochange){
+				$sql = $sql.", ";
+			}
+			$sql = $sql."`end`='$end'";
+		}
+		if ($category != $oldCategory){
+			if ($sql != $nochange){
+				$sql = $sql.", ";
+			}
+			$sql = $sql."`category`='$category'";
+		}
+		if ($season != $oldSeason){
+			if ($sql != $nochange){
+				$sql = $sql.", ";
+			}
+			if ($season == "NULL"){
+  			$sql = $sql."`season`=$season";
+			} else {
+			  $sql .= "`season`='$season'";
+			}
+		}
+		if ($private != $oldPrivate){
+			if ($sql != $nochange){
+				$sql = $sql.", ";
+			}
+			$sql = $sql."`private`=$private";
+		}
+		if ($url != $oldUrl){
+			if ($sql != $nochange){
+				$sql = $sql.", ";
+			}
+			if ($url == "NULL"){
+			  $sql .="`url`=$url";
+			} else {
+				$sql .= "`url`='$url'";
+			}
+		}
+		if ($addressID != $oldAddressID){
+			if ($sql != $nochange){
+				$sql = $sql.", ";
+			}
+			$sql = $sql."`addressID`=$addressID";
+		}
+		if ($sql == $nochange){
+			echo "<br>There was no change. The event was not modified.";
+		} else {
+			$sql .= " WHERE `eventID`=$eventID;";
+			echo "<br>".$sql; //TODO: Delete me
+			$conn->exec($sql);
+		}
 	}
 } else {
 	$url = "NULL";
@@ -173,6 +282,13 @@ function test_input($data) {
 </div>
 <div class="w3-container w3-card">
 	<form class="w3-container" method="post" action="createevent.php">
+		<?php
+			//maintain state
+			if($modify){
+				echo "<input type=\"number\" name=\"modify\"hidden value=\"1\">";
+				echo "<input type=\"number\" name=\"eventID\"hidden value=\"".$eventID."\">";
+			}
+		?>
 		<div class="w3-row-padding">
 			<div class="w3-quarter">
 				<select class="w3-select" name="category" required>
@@ -204,7 +320,7 @@ function test_input($data) {
 				<input type="datetime-local" name="start" required
 				<?php
 				if ($_SERVER["REQUEST_METHOD"] == "POST"){
-					echo "value=\"$start\"";
+					echo "value=\"$startLocal\"";
 				}
 				?>  >
 				<label class="w3-label w3-validate">Start Date-Time</label><span class="error"><?php echo $startErr;?></span>
@@ -212,7 +328,7 @@ function test_input($data) {
 				<input type="datetime-local" name="end" required
 				<?php
 				if ($_SERVER["REQUEST_METHOD"] == "POST"){
-					echo "value=\"$end\"";
+					echo "value=\"$endLocal\"";
 				}
 				?>  >
 				<label class="w3-label w3-validate">End Date-Time</label><span class="error"><?php echo $endErr;?></span>
@@ -260,7 +376,9 @@ function test_input($data) {
 				<?php
 					if ($_SERVER["REQUEST_METHOD"] == "POST") {
 						if (isset($_POST['private'])) {
-							echo "checked";
+							if ($_POST['private']==true){
+								echo "checked";
+							}
 						}
 					}
 				?>>
@@ -271,9 +389,15 @@ function test_input($data) {
 		<br><br>
 		<div class="w3-row-padding">
 			<div class="w3-quarter">
-				<input class="w3-button" type="submit" name="submit" value="Create">
+				<input class="w3-button" type="submit" name="submit" value=
+				<?php
+				if ($modify){
+				  echo "\"Modify\"";
+				} else {
+				  echo "\"Create\"";
+				}
+				?> >
 				<input class="w3-button" type="reset">
-				<input class="w3-button" type="submit" name="btnclear" value="Clear Out the Form">
 			</div>
 		</div>
 	</form>
