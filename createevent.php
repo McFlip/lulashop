@@ -304,7 +304,7 @@ function test_input($data) {
 					<option value="outofoffice">Out of Office</option>
 					<option value="fair">Party - Multi Consultant</option>
 					<option value="season">Season</option>
-					</select>
+				</select>
 				<label class="w3-label w3-validate">Event category</label><?php echo $categoryErr;?>
 			</div>
 			<div class="w3-quarter">
