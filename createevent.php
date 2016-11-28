@@ -200,23 +200,49 @@ echo "<br>".$sql; //TODO: Delete me
 		if ($oldAddressID == NULL){
 			$oldAddressID="NULL";
 		}
+		//prepare an email notification stating what changed
+		//build address list
+		$to = "";
+		$headers = "From: donotreply@localhost.com"; //TODO: change this to actual domain for deployment
+		$emailSql = "SELECT `email` FROM `followEvent`,`user` WHERE `followEvent`.`eventID`=".$eventID.
+				       " AND `followEvent`.`userID`=`user`.`userID`;";
+		$pdo = $conn->query($emailSql);
+	  while ($tolist = $pdo->fetchColumn()){
+	    $to .= $tolist.",";
+		}
+		if ($oldCategory == "fair") {
+		  $emailSql = "SELECT `email` FROM `fair`,`member` WHERE `fair`.`eventID`=".$eventID.
+		          " AND `fair`.`memberID`=`member`.`memberID`;";
+      $pdo = $conn->query($emailSql);
+	    while ($tolist = $pdo->fetchColumn()){
+		    $to .= $tolist.",";
+	    }
+		}
+		$subject = "lulashop event notification";
+		$txt = "An event you have been following has been modified.\n";
+		$txt .= "Please reply to the consultant who organized the event.\n";
+		$txt .= "Please do NOT reply to this sender.\n";
+		$txt .= "See bellow for the details:\n";
 		//compare against new values and build UPDATE statement
 		$sql = "UPDATE `event` SET ";
 		$nochange = $sql; //save for reference
 		if ($start != $oldStart) {
 			$sql = $sql."`start`='$start'";
+			$txt .= "Start changed from ".$oldStart." to ".$start."\n";
 		}
 		if ($end != $oldEnd) {
 			if ($sql != $nochange){
 				$sql = $sql.", ";
 			}
 			$sql = $sql."`end`='$end'";
+			$txt .= "End changed from ".$oldEnd." to ".$end."\n";
 		}
 		if ($category != $oldCategory){
 			if ($sql != $nochange){
 				$sql = $sql.", ";
 			}
 			$sql = $sql."`category`='$category'";
+			$txt .= "Category changed from ".$oldCategory." to ".$category."\n";
 		}
 		if ($season != $oldSeason){
 			if ($sql != $nochange){
@@ -226,6 +252,7 @@ echo "<br>".$sql; //TODO: Delete me
   			$sql = $sql."`season`=$season";
 			} else {
 			  $sql .= "`season`='$season'";
+			  $txt .= "Season changed from ".$oldSeason." to ".$season."\n";
 			}
 		}
 		if ($private != $oldPrivate){
@@ -233,6 +260,7 @@ echo "<br>".$sql; //TODO: Delete me
 				$sql = $sql.", ";
 			}
 			$sql = $sql."`private`=$private";
+			$txt .= "Private changed from ".$oldPrivate." to ".$private."\n";
 		}
 		if ($url != $oldUrl){
 			if ($sql != $nochange){
@@ -243,12 +271,15 @@ echo "<br>".$sql; //TODO: Delete me
 			} else {
 				$sql .= "`url`='$url'";
 			}
+			$txt .= "URL changed from ".$oldUrl." to ".$url."\n";
 		}
 		if ($addressID != $oldAddressID){
 			if ($sql != $nochange){
 				$sql = $sql.", ";
 			}
 			$sql = $sql."`addressID`=$addressID";
+			//TODO: look up the address
+			$txt .= "Address changed from ".$oldAddressID." to ".$addressID."\n";
 		}
 		if ($sql == $nochange){
 			echo "<br>There was no change. The event was not modified.";
@@ -256,6 +287,9 @@ echo "<br>".$sql; //TODO: Delete me
 			$sql .= " WHERE `eventID`=$eventID;";
 			echo "<br>".$sql; //TODO: Delete me
 			$conn->exec($sql);
+			if (!mail($to,$subject,$txt,$headers)){
+			  echo "Email notification failed.<br>";
+			}
 		}
 	}
 } else {

@@ -35,15 +35,47 @@ session_start();
 		$userType = $_SESSION["userType"];
 		$user = $_SESSION["userID"];
 		$eventID = $_POST["eventID"];
+		$sql = "SELECT * FROM `event` WHERE `eventID` = ".$eventID.";";
+		$pdo = $conn->query($sql);
+		$result = $pdo->fetch();
 		if (isset($_POST["submit"])) {
 			if ($_POST["submit"]=="DELETE") {
+				//TODO: email all event followers
+				$sql = "SELECT `email` FROM `followEvent`,`user` WHERE `followEvent`.`eventID`=".$eventID.
+				       " AND `followEvent`.`userID`=`user`.`userID`;";
+				$pdo = $conn->query($sql);
+			  $to = "";
+			  while ($tolist = $pdo->fetchColumn()){
+			    $to .= $tolist.",";
+				}
+				if ($result['category'] == "fair") {
+				  $sql = "SELECT `email` FROM `fair`,`member` WHERE `fair`.`eventID`=".$eventID.
+				          " AND `fair`.`memberID`=`member`.`memberID`;";
+          $pdo = $conn->query($sql);
+          while ($tolist = $pdo->fetchColumn()){
+				    $to .= $tolist.",";
+			    }
+				}
+				$subject = "lulashop event notification";
+				$txt = "An event you have been following has been deleted.\n";
+				$txt .= "Please reply to the consultant who organized the event.\n";
+				$txt .= "Please do NOT reply to this sender.\n";
+				$txt .= "See bellow for the details:\n";
+				//TODO: look up the address and people
+				foreach ($result as $k=>$v){
+				  if(is_numeric($k)){
+				    continue;
+				  } else {
+				    $txt .= $k.": ".$v."\n";
+				  }
+				}
+				$headers = "From: donotreply@localhost.com"; //TODO: change this to actual domain for deployment
+				// additional headers must be seperated by CRLF: $headers.="\r\n"
+				if (!mail($to,$subject,$txt,$headers)){
+				  echo "Email notification failed.<br>";
+				}
 				$sql = "DELETE FROM `event` WHERE `eventID` = ".$eventID.";";
 				$conn->exec($sql);
-				//TODO: email all event followers
-				$to = "gradydenton@yahoo.com";
-				$subject = "lulashop event notification";
-				$txt = "An event you have been following has been deleted.";
-				mail($to,$subject,$txt);
 				echo "This event has been deleted. Those following this event have been notified. <br>";
 				echo "This event will disappear from your calendar view when it is refreshed.";
 			} else if ($_POST["submit"]=="HOST") {
@@ -62,9 +94,9 @@ session_start();
 			  if ($email){
 			    $sql = "SELECT `memberID` FROM `member` WHERE `email`='".$email."';";
 			    $pdo = $conn->query($sql);
-			    $result = $pdo->fetchColumn();
-			    if($result) {
-			      $sql = "INSERT INTO `fair` VALUES ($eventID,$result)";
+			    $memberID = $pdo->fetchColumn();
+			    if($memberID) {
+			      $sql = "INSERT INTO `fair` VALUES ($eventID,$memberID)";
 			      $conn->exec($sql);
 			    }
 			  }
@@ -74,9 +106,7 @@ session_start();
 			  $conn->exec($sql);
 			}
 		}
-		$sql = "SELECT * FROM `event` WHERE `eventID` = ".$eventID.";";
-		$pdo = $conn->query($sql);
-		$result = $pdo->fetch();
+
 		//print all the info
 		echo "Event ID: ".$eventID."<br>"; //TODO: DELETE me
 		echo "Event Type: ".$result['category']."<br>";

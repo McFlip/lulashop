@@ -183,6 +183,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
 			echo "\">";
 			echo "</form>";
 		}
+		if ($category == "all" || $category == "fair") {
+		  $sql = "SELECT `event`.`eventID`,`category`
+		    FROM `event`,`fair`
+		    WHERE `start` LIKE '".date_format($first, 'Y-m-d')."%'
+			  AND `fair`.`memberID` = '".$calOwner."'
+			  AND `fair`.`eventID` = `event`.`eventID`";
+			$pdo = $conn->query($sql);
+			while ($result = $pdo->fetch()) {
+				echo "<form class=\"w3-container\" method=\"post\" action=\"showevent.php\" target=\"showevent\">";
+				echo "<input type=\"submit\" name=\"submit\" ";
+				echo "value=\"";
+				echo $result["category"];
+				echo "\">";
+				echo "<input type=\"number\" name=\"eventID\"hidden value=\"";
+				echo $result["eventID"];
+				echo "\">";
+				echo "</form>";
+			}
+		}
 		echo "</div>";
 		date_add($first, date_interval_create_from_date_string("1 day"));
 	}
