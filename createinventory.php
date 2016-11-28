@@ -119,12 +119,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if (!empty($_POST["fitfeel"])){
 		$fitfeel = test_input($_POST["fitfeel"]);
 	} else {
-		$fitfeel = "NULL";
+		$fitfeel = null;
 	}
 	if (!empty($_POST["thread"])){
 		$thread = test_input($_POST["thread"]);
 	} else {
-		$thread = "NULL";
+		$thread = null;
 	}
 	if (isset($_POST["visible"])){
 		$visible = 1;
@@ -142,9 +142,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 	if (!$isErr){
 // sql inserts on 2 tables - only insert pic table on Inventory success and upload success
-// 	TODO: create seperate update item page
+// 	TODO: update item functionality
 // 	TODO: come up with a thumbnailing scheme
-		$sql = "INSERT INTO `inventory`
+		$stmt = $conn->prepare("INSERT INTO `inventory`
 		(
 		  price,
 		  quantity,
@@ -159,21 +159,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		)
 		VALUES
 		(
-		  '$price',
-			'$quantity',
-			'$category',
-			'$size',
-			'$color',
-			'$fitfeel',
-			'$thread',
-			'$visible',
-			'$pattern',
-			'$memberID'
-		)";
+		  :price,
+			:quantity,
+			:category,
+			:size,
+			:color,
+			:fitfeel,
+			:thread,
+			:visible,
+			:pattern,
+			:memberID
+		)");
+		$stmt->bindParam(':price', $price);
+		$stmt->bindParam(':quantity', $quantity);
+		$stmt->bindParam(':category', $category);
+		$stmt->bindParam(':size', $size);
+		$stmt->bindParam(':color', $color);
+		$stmt->bindParam(':fitfeel', $fitfeel);
+		$stmt->bindParam(':thread', $thread);
+		$stmt->bindParam(':visible', $visible);
+		$stmt->bindParam(':pattern', $pattern);
+		$stmt->bindParam(':memberID', $memberID);
 		try {
-			$conn->exec($sql);
-		}
-		catch(PDOException $e) {
+			$stmt->execute();
+		} catch(PDOException $e) {
 			echo "Creation of inventory failed: " . $e->getMessage();
 			die(); //enforce ref integrity - don't upload pics if you cant attach to SKU
 		}
