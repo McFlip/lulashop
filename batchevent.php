@@ -26,12 +26,12 @@ $sql = "SELECT `event`.`season`, `event`.`memberID`
 				AND `inventory`.`pattern` LIKE CONCAT('%',`event`.`season`,'%')";
 try {
 	$pdo = $conn->query($sql);
-	$seasonal = $pdo->fetch();
 } catch(PDOException $e) {
 	echo "find seasonal event statement failed: " . $e->getMessage();
 	die();
 }
-if ($seasonal){
+// TODO: change to prepared statement
+while ($seasonal = $pdo->fetch()){
   $sql = "UPDATE `inventory`
 				SET `visible`=1
 				WHERE `inventory`.`pattern` LIKE '%".$seasonal['season']."%'
@@ -53,12 +53,12 @@ $sql = "SELECT `event`.`season`, `event`.`memberID`
 				AND `inventory`.`pattern` LIKE CONCAT('%',`event`.`season`,'%')";
 try {
 	$pdo = $conn->query($sql);
-	$seasonal = $pdo->fetch();
+
 } catch(PDOException $e) {
 	echo "find seasonal event statement failed: " . $e->getMessage();
 	die();
 }
-if ($seasonal){
+while ($seasonal = $pdo->fetch()){
   $sql = "UPDATE `inventory`
 				SET `visible`=0
 				WHERE `inventory`.`pattern` LIKE '%".$seasonal['season']."%'
@@ -71,5 +71,55 @@ if ($seasonal){
 	}
 }
 echo "season hide statement succeded\n";
+// Check if an out of office event starts today and hide all inventory
+$sql =
+ "SELECT `sku`
+	FROM `inventory`,`event`
+	WHERE `event`.`start` LIKE '".date_format($today, 'Y-m-d')."%'
+	AND `event`.`category`='outofoffice'
+	AND `inventory`.`memberID`=`event`.`memberID`";
+try {
+	$pdo = $conn->query($sql);
+
+} catch(PDOException $e) {
+	echo "find seasonal event statement failed: " . $e->getMessage();
+	die();
+}
+while($outofoffice = $pdo->fetchColumn()){
+	$sql =
+ "UPDATE `inventory`
+  SET `visible`=0
+  WHERE `sku`=$outofoffice";
+	try {
+		$conn->exec($sql);
+	} catch(PDOException $e) {
+		echo "out of office hide statement failed: " . $e->getMessage();
+		die();
+	}
+}
+echo "out of office hide statement succeded\n";
+// Check if an out of office event ends today and make visible all inventory that is not still hidden by a season event
+$sql ="SELECT * FROM `outofoffice_show`";
+try {
+	$pdo = $conn->query($sql);
+
+} catch(PDOException $e) {
+	echo "find out of office statement failed: " . $e->getMessage();
+	die();
+}
+while($outofoffice = $pdo->fetchColumn()){
+	$sql =
+	"UPDATE `inventory`
+	SET `visible`=1
+	WHERE `sku`=$outofoffice";
+	try {
+		$conn->exec($sql);
+	} catch(PDOException $e) {
+		echo "out of office make visible statement failed: " . $e->getMessage();
+		die();
+	}
+}
+echo "out of office make visible statement succeded\n";
+// "SELECT `sku` FROM `inventory`,`event` WHERE `event`.`start` > CURRENT_DATE AND `event`.`category`='season' AND `inventory`.`pattern` LIKE CONCAT('%',`event`.`season`,'%') AND `inventory`.`memberID`=`event`.`memberID`"
 $conn = null;
 ?>
