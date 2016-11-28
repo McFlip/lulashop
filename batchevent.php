@@ -15,10 +15,22 @@ try {
 	echo "Connection failed: " . $e->getMessage();
 	die();
 }
-
+$today = date_create();
 //seasonal
 $sql = "UPDATE `inventory`
 				SET `visible`=1
-				WHERE (
-					SELECT )"
+				WHERE `sku`=(
+					SELECT `sku`
+					FROM `inventory`,`member`,`event`
+					WHERE `inventory`.`memberID`=`member`.`memberID`
+					  AND `member`.`memberID`=`event`.`memberID`
+					  AND `event`.`category`='season'
+						AND `event`.`start` LIKE '".date_format($today, 'Y-m-d')."%')";
+try {
+	$conn->exec($sql);
+} catch(PDOException $e) {
+	echo "season statement failed: " . $e->getMessage();
+	die();
+}
+echo "season statement succeded\n";
 ?>
