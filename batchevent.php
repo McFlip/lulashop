@@ -18,11 +18,11 @@ try {
 $today = date_create(null, new DateTimeZone('UTC'));
 //seasonal
 //Check if a season starts today and make matching patterns visible
-$sql = "SELECT `event`.`season`, `event`.`memberID`
+$sql = "SELECT `sku`
         FROM `event`,`inventory`
         WHERE `event`.`memberID`=`inventory`.`memberID`
         AND `event`.`category`='season'
-				AND `event`.`start` LIKE '".date_format($today, 'Y-m-d')."%'
+				AND `event`.`start` LIKE CONCAT(CURRENT_DATE,'%')
 				AND `inventory`.`pattern` LIKE CONCAT('%',`event`.`season`,'%')";
 try {
 	$pdo = $conn->query($sql);
@@ -31,11 +31,11 @@ try {
 	die();
 }
 // TODO: change to prepared statement
-while ($seasonal = $pdo->fetch()){
-  $sql = "UPDATE `inventory`
-				SET `visible`=1
-				WHERE `inventory`.`pattern` LIKE '%".$seasonal['season']."%'
-				AND `inventory`.`memberID`=".$seasonal['memberID'].";";
+while ($seasonal = $pdo->fetchColumn()){
+  $sql = "
+  UPDATE `inventory`
+	SET `visible`=1
+	WHERE `sku`=$seasonal";
 	try {
 		$conn->exec($sql);
 	} catch(PDOException $e) {
@@ -45,11 +45,11 @@ while ($seasonal = $pdo->fetch()){
 }
 echo "season make visible statement succeded\n";
 //Check if a season ends today and hide matching patterns
-$sql = "SELECT `event`.`season`, `event`.`memberID`
+$sql = "SELECT `sku`
         FROM `event`,`inventory`
         WHERE `event`.`memberID`=`inventory`.`memberID`
         AND `event`.`category`='season'
-				AND `event`.`end` LIKE '".date_format($today, 'Y-m-d')."%'
+				AND `event`.`end` LIKE CONCAT(CURRENT_DATE,'%')
 				AND `inventory`.`pattern` LIKE CONCAT('%',`event`.`season`,'%')";
 try {
 	$pdo = $conn->query($sql);
@@ -58,11 +58,11 @@ try {
 	echo "find seasonal event statement failed: " . $e->getMessage();
 	die();
 }
-while ($seasonal = $pdo->fetch()){
-  $sql = "UPDATE `inventory`
-				SET `visible`=0
-				WHERE `inventory`.`pattern` LIKE '%".$seasonal['season']."%'
-				AND `inventory`.`memberID`=".$seasonal['memberID'].";";
+while ($seasonal = $pdo->fetchColumn()){
+  $sql = "
+  UPDATE `inventory`
+	SET `visible`=0
+	WHERE `sku`=$seasonal";
 	try {
 		$conn->exec($sql);
 	} catch(PDOException $e) {
@@ -75,7 +75,7 @@ echo "season hide statement succeded\n";
 $sql =
  "SELECT `sku`
 	FROM `inventory`,`event`
-	WHERE `event`.`start` LIKE '".date_format($today, 'Y-m-d')."%'
+	WHERE `event`.`start` LIKE CONCAT(CURRENT_DATE,'%')
 	AND `event`.`category`='outofoffice'
 	AND `inventory`.`memberID`=`event`.`memberID`";
 try {
@@ -120,6 +120,6 @@ while($outofoffice = $pdo->fetchColumn()){
 	}
 }
 echo "out of office make visible statement succeded\n";
-// "SELECT `sku` FROM `inventory`,`event` WHERE `event`.`start` > CURRENT_DATE AND `event`.`category`='season' AND `inventory`.`pattern` LIKE CONCAT('%',`event`.`season`,'%') AND `inventory`.`memberID`=`event`.`memberID`"
+
 $conn = null;
 ?>
