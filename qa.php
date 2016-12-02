@@ -30,6 +30,8 @@ session_start();
 <?php
 	if ($_SERVER["REQUEST_METHOD"] == "POST"){
 	echo "test";
+	} else {
+		echo "test";
 	}
 	$conn = null;
 ?>

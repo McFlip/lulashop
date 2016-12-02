@@ -44,6 +44,7 @@ session_start();
 		$pattern = test_input($_POST["pattern"]);
 	}
 ?>
+
 <nav class="w3-sidenav w3-light-grey w3-card-2" style="width:160px;">
 	<form class="w3-container" method="post" action="shop.php">
 		<input class="w3-radio" type="radio" name="colorFilter" value="all"
@@ -721,7 +722,7 @@ session_start();
 
 </nav>
 
-<div class="w3-container" style="margin-left:160px">
+<div class="w3-container" style="margin-left:160px" onload="document.getElementById('qa').style.display='none'">
 	<h4>Search Results</h4>
 	<?php
 // 	TODO: paginate the results
@@ -826,10 +827,24 @@ session_start();
 	?>
 <!-- TODO: delete these breaks - for testing purposes	 -->
 	<!--<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>-->
+<div class="w3-container" style="margin-left:160px">
+  <h2>W3.CSS Modal</h2>
+  <button onclick="document.getElementById('id01').style.display='block'" class="w3-btn">Open Modal</button>
 
+  <div id="id01" class="w3-modal">
+    <div class="w3-modal-content">
+      <div class="w3-container">
+        <span onclick="document.getElementById('id01').style.display='none'" class="w3-closebtn">&times;</span>
+        <p>Some text. Some text. Some text.</p>
+        <p>Some text. Some text. Some text.</p>
+        <iframe name="qa" height="400px" width="100%" src="qa.php">Questions and Answers</iframe>
+      </div>
+    </div>
+  </div>
 </div>
-<div class="w3-container">
-	<iframe name="qa" id="qa" height="400px" width="100%" src="qa.php">Questions and Answers</iframe>
+</div>
+<div class="w3-container" id="qa">
+
 </div>
 <script>
 	// accordion function for sidenav search menu
