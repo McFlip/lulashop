@@ -728,6 +728,17 @@ session_start();
 // 	TODO: paginate the results
 	if ($_SERVER["REQUEST_METHOD"] == "POST"){
 		$sql = "SELECT * FROM `inventory`, `member` WHERE inventory.memberID=member.memberID AND `visible`=1";
+		if (isset($_SESSION["userType"])){
+			$userType = $_SESSION["userType"];
+			if($userType=="member"){
+			//user is looking at their own inventory
+				$sql .= " AND `inventory`.`memberID`=".$_SESSION["userID"];
+			} else {
+				$sql .= " AND `quantity` > 0 ";
+			}
+		} else {
+			$sql .= " AND `quantity` > 0 ";
+		}
 		//filter by color
 		if($_POST["colorFilter"]=="filter"){
 			$arrColor = array("green","teal","blue","purple","red","pink","flesh","tan","brown","black","lime","yellow","orange","grey","maroon","white");
@@ -822,10 +833,9 @@ session_start();
 			echo "<button style=\"font-size:24px\" onclick=\"showqa()\">q&a <i class=\"material-icons\">question_answer</i></button>";
 			echo "</form></td>";
 			echo "<td><form method=\"post\" action=\"add_cart.php\" target=\"qa\">";
-			echo "<input onclick=\"showqa()\" type=\"submit\" value=\"ADD ITEM\">";
-			echo "holy fuckballz";
+			echo "<input onclick=\"showqa()\" type=\"submit\" value=\"ADD ITEM\" name=\"submit\">";
+			echo "<input type=\"number\" name=\"sku\" hidden value=\"".$result["sku"]."\">";
 			echo "</form></td></tr>";
-
 		}
 		echo "</table>";
 	}
