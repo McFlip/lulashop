@@ -722,7 +722,7 @@ session_start();
 
 </nav>
 
-<div class="w3-container" style="margin-left:160px" onload="document.getElementById('qa').style.display='none'">
+<div class="w3-container" style="margin-left:160px">
 	<h4>Search Results</h4>
 	<?php
 // 	TODO: paginate the results
@@ -819,32 +819,29 @@ session_start();
 			echo "</tr><tr>";
 			echo "<td>".$result["category"]."</td><td>".$result["size"]."</td><td>".$result["price"]."</td><td>".$result["firstName"]." ".$result["lastName"]."</td>";
 			echo "<td><form method=\"post\" action=\"qa.php\" target=\"qa\">";
-			echo "<button style=\"font-size:24px\" onclick=\"document.getElementById(\'qa\').style.display=\'block\'\">q&a <i class=\"material-icons\">question_answer</i></button>";
+			echo "<button style=\"font-size:24px\" onclick=\"showqa()\">q&a <i class=\"material-icons\">question_answer</i></button>";
+			echo "</form></td>";
+			echo "<td><form method=\"post\" action=\"add_cart.php\" target=\"qa\">";
+			echo "<input onclick=\"showqa()\" type=\"submit\" value=\"ADD ITEM\">";
+			echo "holy fuckballz";
 			echo "</form></td></tr>";
+
 		}
 		echo "</table>";
 	}
 	?>
 <!-- TODO: delete these breaks - for testing purposes	 -->
 	<!--<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>-->
-<div class="w3-container" style="margin-left:160px">
-  <h2>W3.CSS Modal</h2>
-  <button onclick="document.getElementById('id01').style.display='block'" class="w3-btn">Open Modal</button>
 
-  <div id="id01" class="w3-modal">
-    <div class="w3-modal-content">
-      <div class="w3-container">
-        <span onclick="document.getElementById('id01').style.display='none'" class="w3-closebtn">&times;</span>
-        <p>Some text. Some text. Some text.</p>
-        <p>Some text. Some text. Some text.</p>
-        <iframe name="qa" height="400px" width="100%" src="qa.php">Questions and Answers</iframe>
-      </div>
-    </div>
-  </div>
+<div id="qa" class="w3-modal">
+	<div class="w3-modal-content">
+		<div class="w3-container">
+			<span onclick="document.getElementById('qa').style.display='none'" class="w3-closebtn">&times;</span>
+			<iframe name="qa" height="400px" width="100%" src="qa.php">Questions and Answers</iframe>
+		</div>
+	</div>
 </div>
 </div>
-<div class="w3-container" id="qa">
-
 </div>
 <script>
 	// accordion function for sidenav search menu
@@ -858,6 +855,9 @@ session_start();
 			x.previousElementSibling.className =
 			        x.previousElementSibling.className.replace(" w3-green", "");
 		}
+	}
+	function showqa(){
+		document.getElementById('qa').style.display='block';
 	}
 </script>
 </body>

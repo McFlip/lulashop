@@ -29,9 +29,9 @@ session_start();
 <body>
 <?php
 	if ($_SERVER["REQUEST_METHOD"] == "POST"){
-	echo "test";
+	echo "posted";
 	} else {
-		echo "test";
+		echo "not post";
 	}
 	$conn = null;
 ?>
