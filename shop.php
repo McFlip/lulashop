@@ -10,6 +10,7 @@ session_start();
   <title>LuLa Shop</title>
 	<?php include 'menu.php'; ?>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<?php
 	//TODO: create account for this app
 		$servername = "localhost";
@@ -815,16 +816,21 @@ session_start();
 				echo "<td><div class=\"w3-card-8\"><img src=\"".$pic["picURL"]."\" width=\"300\" height=\"300\"></div></td>";
 			}
 			echo "</tr><tr>";
-			echo "<td>".$result["category"]."</td><td>".$result["size"]."</td><td>".$result["price"]."</td><td>".$result["firstName"]." ".$result["lastName"]."</td></tr>";
+			echo "<td>".$result["category"]."</td><td>".$result["size"]."</td><td>".$result["price"]."</td><td>".$result["firstName"]." ".$result["lastName"]."</td>";
+			echo "<td><form method=\"post\" action=\"qa.php\" target=\"qa\">";
+			echo "<button style=\"font-size:24px\" onclick=\"document.getElementById(\'qa\').style.display=\'block\'\">q&a <i class=\"material-icons\">question_answer</i></button>";
+			echo "</form></td></tr>";
 		}
 		echo "</table>";
 	}
 	?>
 <!-- TODO: delete these breaks - for testing purposes	 -->
-	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+	<!--<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>-->
 
 </div>
-
+<div class="w3-container">
+	<iframe name="qa" id="qa" height="400px" width="100%" src="qa.php">Questions and Answers</iframe>
+</div>
 <script>
 	// accordion function for sidenav search menu
 	function myAccFunc(acc) {
