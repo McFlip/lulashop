@@ -1,41 +1,70 @@
-case "add":
-	if(!empty($_POST["quantity"])) {
-		$productByCode = $db_handle->runQuery("SELECT * FROM tblproduct WHERE sku='" . $_GET["sku"] . "'");
-		$itemArray = array($productByCode[0]["sku"]=>array('name'=>$productByCode[0]["name"], 'sku'=>$productByCode[0]["sku"], 'quantity'=>$_POST["quantity"], 'price'=>$productByCode[0]["price"]));		
-		if(!empty($_SESSION["cart_item"])) {
-			if(in_array($productByCode[0]["sku"],$_SESSION["cart_item"])) {
-				foreach($_SESSION["cart_item"] as $k => $v) {
-					if($productByCode[0]["sku"] == $k)	$_SESSION["cart_item"][$k]["quantity"] = $_POST["quantity"];
-				}
-			} else $_SESSION["cart_item"] = array_merge($_SESSION["cart_item"],$itemArray);
-		} else 	$_SESSION["cart_item"] = $itemArray;
-	}
-break;
+<?php
+session_start();
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-case "remove":
-	if(!empty($_SESSION["cart_item"])) {
-		foreach($_SESSION["cart_item"] as $k => $v) {
-			if($_GET["sku"] == $k)	unset($_SESSION["cart_item"][$k]);				
-			if(empty($_SESSION["cart_item"])) unset($_SESSION["cart_item"]);
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	<div class="w3-panel w3-blue">
+		<h3>Cart</h3>
+	</div>
+	<?php
+	
+	$servername = "localhost";
+	$username = "root";
+	$password = "";
+	$dbname = "lulashop";
+	// Connect to the database
+	try {
+		$conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+		// set the PDO error mode to exception
+		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	}
+	catch(PDOException $e) {
+		echo "Connection failed: " . $e->getMessage();
+		die();
+	}
+	?>
+</head>
+
+<body>
+<?php
+	if ($_SERVER["REQUEST_METHOD"] == "POST") {
+		$userType = $_SESSION["userType"];
+		$user = $_SESSION["userID"];
+		$sku = $_POST["sku"];
+		$sql = "SELECT * FROM `inventory` WHERE `sku` = ".$sku;
+
+		$conn->beginTransaction();
+		$pdo = $conn->query($sql);
+		$result = $pdo->fetch();
+		if (isset($_POST["submit"])) {
+			if ($_POST["submit"]=="ADD ITEM") {
+				if($result['quantity'] > 0){
+
+					$conn->exec("UPDATE 'inventory'
+					SET 'quantity' = $result[quantity]-1 
+					WHERE sku = $sku;");
+
+					$conn->exec("INSERT INTO cart ('1', 'sku = $sku', 'user = $userID')");
+
+					$conn->commit();
+				}
+			}
+
+			if ($_POST["submit"]=="REMOVE ITEM") {
+				$conn->exec("UPDATE 'inventory'
+				SET 'quantity' = $result[quantity] + 1
+				WHERE sku = $sku;");
+
+				$conn->exec("DELETE FROM cart WHERE sku = $sku;");
+				$conn->commit();
+			}
+			
 		}
 	}
-break;
-case "empty":
-	unset($_SESSION["cart_item"]);
-break;
-
-
-
-<?php
-$product_array = $db_handle->runQuery("SELECT * FROM tblproduct ORDER BY id ASC");
-if (!empty($product_array)) { 
-foreach($product_array as $key=>$value){
+	$conn = null;
 ?>
-<div class="product-item">
-	<form method="post" action="index.php?action=add&sku=<?php echo $product_array[$key]["sku"]; ?>">
-	<div><strong><?php echo $product_array[$key]["name"]; ?></strong></div>
-	<div class="product-price"><?php echo "$".$product_array[$key]["price"]; ?></div>
-	<div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
-	</form>
-</div>
-<?php }} ?>
+</body>
