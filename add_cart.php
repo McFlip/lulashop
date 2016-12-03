@@ -63,7 +63,7 @@ session_start();
 				SET `quantity` = $result[quantity] + 1
 				WHERE sku = $sku;");
 
-				$conn->exec("DELETE FROM cart WHERE sku = $sku;");
+				$conn->exec("DELETE FROM cart WHERE sku = $sku AND userID = $user;");
 				$conn->commit();
 			}
 
@@ -79,7 +79,9 @@ session_start();
 		echo "<table class=\"w3-striped\">";
 		echo "<tr><th>Style</th><th>Seller</th><th>Name</th><th>        </th><th>      </th><tr>";
 		while($cart = $pdo->fetch()){
-			$sql2 = "SELECT `picURL` FROM `picture` WHERE `sku`=".$cart["sku"];
+			$sql2 = "SELECT `picURL` FROM `picture` WHERE `sku`=".$cart["sku"]."
+							ORDER BY `picURL` ASC
+							LIMIT 1";
 			$pdo2 = $conn->query($sql2);
 			echo "<tr>";
 			while($pic = $pdo2->fetch()){

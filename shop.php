@@ -833,8 +833,8 @@ session_start();
 			echo "<input type=\"submit\" style=\"font-size:24px\" onclick=\"showqa()\" value=\"q&a\"> <i class=\"material-icons\">question_answer</i></input>";
 			echo "<input type=\"number\" name=\"sku\" hidden value=\"".$result["sku"]."\">";
 			echo "</form></td>";
-			echo "<td><form method=\"post\" action=\"add_cart.php\" target=\"qa\">";
-			echo "<input onclick=\"showqa()\" type=\"submit\" value=\"ADD ITEM\" name=\"submit\">";
+			echo "<td id=\"addItem\"><form method=\"post\" action=\"add_cart.php\" target=\"qa\">";
+			echo "<input onclick=\"showcart()\" type=\"submit\" value=\"ADD ITEM\" name=\"submit\">";
 			echo "<input type=\"number\" name=\"sku\" hidden value=\"".$result["sku"]."\">";
 			echo "</form></td></tr>";
 		}
@@ -868,6 +868,10 @@ session_start();
 		}
 	}
 	function showqa(){
+		document.getElementById('qa').style.display='block';
+	}
+	function showcart(){
+		document.getElementById('addItem').style.display='none';
 		document.getElementById('qa').style.display='block';
 	}
 </script>
