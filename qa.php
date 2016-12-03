@@ -29,10 +29,89 @@ session_start();
 <body>
 <?php
 	if ($_SERVER["REQUEST_METHOD"] == "POST"){
-	echo "posted";
+		//sanatize input
+		function test_input($data) {
+			$data = trim($data);
+			$data = stripslashes($data);
+			$data = htmlspecialchars($data);
+			return $data;
+		}
+		if (isset($_SESSION["userType"])){
+			$userType = $_SESSION["userType"];
+			$user = $_SESSION["userID"];
+		}
+		$abbrev  = DateTimeZone::listAbbreviations();
+		$sku = $_POST["sku"];
+		$sql = "SELECT `firstName`,`lastName`,`timezoneOffset`,`_date`,`rank`,`txt`,`questionID`
+						FROM `question`,`user`
+						WHERE `sku`=".$sku." AND `question`.`userID`=`user`.`userID`
+						ORDER BY `rank` DESC";
+						$pdo = $conn->query($sql);
+		while ($questionList = $pdo->fetch()){
+			$qdate = new DateTime($questionList["_date"], new DateTimeZone('UTC'));
+			$userTZ = $questionList["timezoneOffset"];
+			$timezoneName = $abbrev[$userTZ];
+			$timezoneName = $timezoneName[0]['timezone_id'];
+			$qdate->setTimezone(new DateTimeZone($timezoneName));
+			$qdate = $qdate->format('Y-m-d H:i:s');
+			echo "<div class=\"w3-container w3-card\">";
+			echo "<h10>(".$qdate.")".$questionList["firstName"]." ".$questionList["lastName"]." asks:</h10>";
+			echo "<p>".$questionList["txt"]."</p>";
+			echo "</div>";
+			$sql = "SELECT `fistName`,`lastName`,`timezoneOffset`,`_date`,`rank`,`txt`,`answerID`
+							FROM `answers`,`member`
+							WHERE `questionID`=".$questionList["questionID"]."
+							AND `answers`.`memberID`=`member`.`memberID`
+							ORDER BY `rank` DESC";
+			$pdo2 = $conn->query($sql);
+			while ($answerList = $pdo2->fetch()){
+				$memberTZ = $answerList["timezoneOffset"];
+				$timezoneName = $abbrev[$memberTZ];
+				$timezoneName = $timezoneName[0]['timezone_id'];
+				$adate->setTimezone(new DateTimeZone($timezoneName));
+				$adate = $adate->format('Y-m-d H:i:s');
+				echo "<i>----></i>";
+				echo "<div class=\"w3-container w3-card\">";
+				echo "<h10>(".$adate.")".$answerList["firstName"]." ".$answerList["lastName"]." answers:</h10>";
+				echo "<p>".$answerList["txt"]."</p>";
+				echo "</div>";
+			}
+			if ($userType == "member"){
+				echo "<div class=\"w3-card\">";
+				echo "<form class=\"w3-container\" method=\"post\" action=\"qa.php\" target=\"_self\">";
+				echo "<input class=\"w3-input w3-border\" type=\"text\" name=\"answer\">";
+				echo "<label class=\"w3-validate\"> Reply Here</label>";
+				echo "<input type=\"submit\" name=\"submit\" value=\"ANSWER\">";
+				echo "<input type=\"number\" name=\"questionID\" hidden value=\"".$questionList["questionID"]."\">";
+				echo "</form></div>";
+			}
+		}
+		if (isset($_SESSION["userType"])){
+			if ($userType == "user"){
+			echo "<div class=\"w3-card\">";
+			echo "<form class=\"w3-container\" method=\"post\" action=\"qa.php\" target=\"_self\">";
+			echo "<input class=\"w3-input w3-border\" type=\"text\" name=\"question\">";
+			echo "<label class=\"w3-validate\"> Enter Your Question Here</label>";
+			echo "<input type=\"submit\" name=\"submit\" value=\"ASK\">";
+			echo "<input type=\"number\" name=\"sku\" hidden value=\"".$sku."\">";
+			echo "</form></div>";
+			}
+		}
+		if (isset($_POST["submit"])){
+			if ($_POST["submit"] == "ANSWER"){
+				$sql = "INSERT INTO `answers`(rank,txt,questionID,memberID)
+				VALUES(0,".test_input($_POST["answer"]).",".$_POST["questionID"].",".$user.")";
+				$conn->exec($sql);
+			} else if ($_POST["submit"] == "ASK"){
+				$sql = "INSERT INTO `question`(rank,txt,sku,userID)
+				VALUES(0,".test_input($_POST["question"]).",".$sku.",".$user.")";
+				$conn->exec($sql);
+			}
+		}
 	} else {
 		echo "not post";
 	}
 	$conn = null;
 ?>
+
 </body>
