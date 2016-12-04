@@ -33,6 +33,7 @@ session_start();
 <body>
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST"){
+  $success = false;
   $userID = $_SESSION["userID"];
   if(isset($_POST["invoice"])){
     $billAddressID = $_POST["billAddressID"];
@@ -53,11 +54,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
                 FROM `address`
                 WHERE `addressID`=$billAddressID";
         $pdo2 = $conn->query($sql2);
+        $pdo2->setFetchMode(PDO::FETCH_ASSOC);
         $billAddressArr = $pdo2->fetch();
         $sql2 = "SELECT *
                 FROM `address`
                 WHERE `addressID`=$shipAddressID";
         $pdo2 = $conn->query($sql2);
+        $pdo2->setFetchMode(PDO::FETCH_ASSOC);
         $shipAddressArr = $pdo2->fetch();
         $sql2 = "INSERT INTO `invoice`
                 (
@@ -119,8 +122,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
           $conn->exec($sql3);
         }
       }
+      $sql = "SELECT `email` FROM `user` WHERE `userID`=$userID";
+      $pdo = $conn->query($sql);
+      $to = $pdo->fetchColumn();
+      $txt = "We have recieved the following orders:\n";
+      $sql = "SELECT `price`,`category`,`size`,`firstName`,`lastName`
+              FROM `cart`,`inventory`,`member`
+              WHERE `cart`.`userID`=$userID
+              AND `cart`.`sku`=`inventory`.`sku`
+              AND `inventory`.`memberID`=`member`.`memberID`";
+      $pdo = $conn->query($sql);
+      $pdo->setFetchMode(PDO::FETCH_NUM);
+      $txt .= "Price \t Category \t Size \t Consultant\n";
+      while ($item = $pdo->fetch()){
+        foreach ($item as $col){
+          $txt .=$col." \t ";
+        }
+        $txt .="\n";
+      }
+      $txt .= "Billing Address:\n";
+      foreach($billAddressArr as $b){
+        $txt .= $b."\n";
+      }
+      $txt .= "Shipping Address:\n";
+      foreach($shipAddressArr as $s){
+        $txt .= $s."\n";
+      }
+      $headers = "From: donotreply@localhost.com"; //TODO: change this to actual domain for deployment
+      $subject = "lulashop event notification";
+      if (!mail($to,$subject,$txt,$headers)){
+        echo "Email notification failed.<br>";
+      }
+      $sql = "DELETE FROM `cart` WHERE `userID`=$userID";
+      $conn->exec($sql);
       echo "Invoices Created. Congrats! You will recieve a confirmation email.";
-      echo "<script>document.getElementById('checkoutForm').style.display='none';</script>"; //TODO: test me
+      $success = true;
     }
   }
 } else {
@@ -128,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
   die();
 }
 ?>
-<div id="checkoutForm" class="w3-container">
+<div class="w3-container" <?php if($success)echo"style=\"display:none\"";?>>
   <form action="invoice.php" method="post">
     <div class="w3-row-padding">
       <div class="w3-half">

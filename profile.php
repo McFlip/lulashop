@@ -42,7 +42,12 @@ session_start();
 	if (isset($_SESSION["userID"])) {
 		$userType = $_SESSION["userType"];
 		$user = $_SESSION["userID"];
-		$sql = "SELECT `invoiceNumber`, `_date` FROM `invoice` WHERE userID='$user'";
+		$sql = "SELECT `invoiceNumber`, `_date` FROM `invoice` WHERE ";
+    if ($userType == "user"){
+      $sql .="userID='$user'";
+    } else {
+      $sql .="memberID='$user'";
+    }
 		$pdo = $conn->query($sql);
 		while ($result = $pdo->fetch()) {
 			echo "<tr><td>".$result["invoiceNumber"]."</td><td>".$result["_date"]."</td></tr>";
