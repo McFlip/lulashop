@@ -830,11 +830,11 @@ session_start();
 			echo "</tr><tr>";
 			echo "<td>".$result["category"]."</td><td>".$result["size"]."</td><td>".$result["price"]."</td><td>".$result["firstName"]." ".$result["lastName"]."</td>";
 			echo "<td><form method=\"post\" action=\"qa.php\" target=\"qa\">";
-			echo "<input type=\"submit\" style=\"font-size:24px\" onclick=\"showqa()\" value=\"q&a\"> <i class=\"material-icons\">question_answer</i></input>";
+			echo "<button type=\"submit\" style=\"font-size:24px\" onclick=\"showqa()\" value=\"q&a\">q&a<i class=\"material-icons\">question_answer</i></button>";
 			echo "<input type=\"number\" name=\"sku\" hidden value=\"".$result["sku"]."\">";
 			echo "</form></td>";
 			echo "<td id=\"addItem\"><form method=\"post\" action=\"add_cart.php\" target=\"qa\">";
-			echo "<input onclick=\"showcart()\" type=\"submit\" value=\"ADD ITEM\" name=\"submit\">";
+			echo "<button style=\"font-size:24px\" onclick=\"showcart()\" type=\"submit\" value=\"ADD ITEM\" name=\"submit\">Add<i class=\"material-icons\">add_shopping_cart</i></button>";
 			echo "<input type=\"number\" name=\"sku\" hidden value=\"".$result["sku"]."\">";
 			echo "</form></td></tr>";
 		}

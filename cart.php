@@ -10,6 +10,7 @@ session_start();
   <title>LuLa Shop</title>
 	<?php include 'menu.php'; ?>
 	<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<?php
 	//TODO: create account for this app
 	$servername = "localhost";
@@ -71,11 +72,15 @@ session_start();
 			echo "</tr>";
 			echo "<tr><td>".$cart["category"]."</td><td>".$cart["firstName"]."</td><td>".$cart["lastName"]."</td>";
 			echo "<td><form method=\"post\" action=\"cart.php\" target=\"_self\">";
-			echo "<input type=\"submit\" value=\"REMOVE ITEM\" name=\"submit\">";
+			echo "<button style='font-size:24px' type='submit' value='REMOVE ITEM' name='submit'>Remove Item<i class='material-icons'>remove_shopping_cart</i></button>";
 			echo "<input type=\"number\" name=\"sku\" hidden value=\"".$cart["sku"]."\">";
 			echo "</td></form></tr>";
 		}
 		echo "</table>";
+		echo "<div class='w3-container w3-card'>";
+		echo "<form method='post' action='invoice.php'>";
+		echo "<button class='w3-button' style='font-size:24px' type='submit' name='checkout' value='checkout'>Checkout<i class='material-icons'>shopping_cart</i></button>";
+		echo "</form></div>";
 	}
 	$conn = null;
 ?>
