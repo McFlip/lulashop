@@ -9,9 +9,51 @@ session_start();
 <head>
   <title>LuLa Shop</title>
 	<?php include 'menu.php'; ?>
+	<?php
+	//TODO: create account for this app
+	$servername = "localhost";
+  $username = "root";
+  $password = "";
+  $dbname = "lulashop";
+  // Connect to the database
+  try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    // set the PDO error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  }
+  catch(PDOException $e)
+  {
+    echo "Connection failed: " . $e->getMessage();
+    die();
+  }
+  ?>
 </head>
 
 <body>
+<?php
+  if($_SERVER["REQUEST_METHOD"] == "POST"){
+    if(isset($_POST["byCity"])){
+      $state = $_POST["state"];
+      $city = $_POST["city"];
+      $sql = "SELECT `memberID`,`fistName`,`lastName`,`email`,`aboutMe`
+              FROM `member`,address`
+              WHERE =`address`.`ownerID` LIKE CONCAT('m_',`member`.`memberID`)";
+//               AND `address`.`state`=$state
+//               AND `address`.`city`=$city";
+      $pdo = $conn->query($sql);
+      echo "<table class='w3-striped'>
+            <tr><th>Consultant</th><th>Name</th><th>email</th><th>about me</th><th>FOLLOW ME</th></tr>";
+      while ($consultant = $pdo->fetch()){
+        echo "<tr><td>".$consultant['firstName']."</td><td>".$consultant['lastName']."</td><td>".$consultant['email']."</td><td>".$consultant['aboutMe']."</td><td>
+        <form method='post' action='follow.php'>
+          <input hidden name='memberID' value=".$consultant['memberID'].">
+          <input type='submit' value='follow'>
+        </form></td></tr>";
+      }
+      echo "</table>";
+    }
+  }
+?>
 <p> This is where you find consultants </p>
 <ul class="w3-navbar w3-black">
   <li><a href="#" onclick="openSearch('savedAddress')">Saved Address</a></li>
@@ -66,25 +108,40 @@ session_start();
 	<div class="w3-container w3-teal">
 		<h3>Search by city. First pick your state, then the city.</h3>
 	</div>
-	<form class="w3-container">
+	<form class="w3-container" method="post" action="findconsultant.php">
 		<div class="w3-row-padding">
 			<div class="w3-quarter">
 				<label>State</label>
-				<select class="w3-select w3-border" name="state" placeholder="Choose State">
-					<option value="" disabled selected>Choose state</option>
-					<option value="fl">fl</option>
-				</select>
+				<input list="states" name="state">
+				<datalist id="states">
+          <?php
+          $sql = "SELECT DISTINCT `state`
+                  FROM `address`";
+          $pdo = $conn->query($sql);
+          while ($st = $pdo->fetchColumn()){
+            echo "<option value='$st'>";
+          }
+          ?>
+				</datalist>
 			</div>
 			<div class="w3-half">
 				<label>City</label>
-				<select class="w3-select w3-border" name="city" placeholder="Choose City">
-					<option value="" disabled selected>Choose city</option>
-					<option value="tallahassee">tallahassee</option>
-				</select>
+				<input list="cities" name="city">
+				<datalist id="cities">
+				<?php
+				//TODO: use ajax to narrow cities to match selected state
+				$sql = "SELECT DISTINCT `city`
+				FROM `address`";
+        $pdo = $conn->query($sql);
+        while ($c = $pdo->fetchColumn()){
+          echo "<option value='$c'>";
+        }
+        ?>
+        </datalist>
 			</div>
 		</div>
 		<div class="w3-row-padding">
-			<input class="w3-button" type="submit" value="Search">
+			<input class="w3-button" type="submit" name="byCity" value="Search">
 		</div>
 	</form>
 </div>
@@ -149,6 +206,9 @@ function openSearch(searchMethod) {
 </body>
 
 <footer>
-<?php include 'foot.php'; ?>
+<?php
+  include 'foot.php';
+  $conn = null;
+?>
 </footer>
 </html>
