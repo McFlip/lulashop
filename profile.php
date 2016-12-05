@@ -32,31 +32,83 @@ session_start();
 <body>
 <p> This is where you check on orders that you have purchased, update your addresses, and manage which sellers you follow.</p>
 <div class="w3-container">
+  <h2>Add Address</h2>
+  <form method="post" action="address.php">
+  <button class="w3-btn w3-green w3-large" type="submit" value="Add Address">Add Address</button>
+  <input hidden name="mode" value="add">
+  </form>
+</div>
+<div class="w3-container">
 	<p> The following orders have not shipped yet: <p>
 	<table class="w3-table w3-striped">
 		<tr>
 			<th>Invoice</th>
 			<th>Date</th>
 		</tr>
-<?php
-	if (isset($_SESSION["userID"])) {
-		$userType = $_SESSION["userType"];
-		$user = $_SESSION["userID"];
-		$sql = "SELECT `invoiceNumber`, `_date` FROM `invoice` WHERE ";
-    if ($userType == "user"){
-      $sql .="userID='$user'";
-    } else {
-      $sql .="memberID='$user'";
-    }
-		$pdo = $conn->query($sql);
-		while ($result = $pdo->fetch()) {
-			echo "<tr><td>".$result["invoiceNumber"]."</td><td>".$result["_date"]."</td></tr>";
-		}
-	}
-?>
-</table>
+    <?php
+      if (isset($_SESSION["userID"])) {
+        $userType = $_SESSION["userType"];
+        $user = $_SESSION["userID"];
+        $sql = "SELECT `invoiceNumber`, `_date` FROM `invoice` WHERE `shipped`=0 AND ";
+        if ($userType == "user"){
+          $sql .="userID='$user'";
+        } else {
+          $sql .="memberID='$user'";
+        }
+        $pdo = $conn->query($sql);
+        while ($result = $pdo->fetch()) {
+          echo "<tr><td><form method=\"post\" action=\"showinvoice.php\" target=\"invoice\">";
+          echo "<input type=\"submit\" style=\"font-size:24px\" onclick=\"showInvoice()\" value=\"".$result["invoiceNumber"]."\">";
+          echo "<input type='number' hidden name='invoiceNumber' value='".$result["invoiceNumber"]."'></form></td>";
+          echo "<td>".$result["_date"]."</td></tr>";
+        }
+      }
+    ?>
+  </table>
 </div>
-
+<div class="w3-container">
+	<p> The following orders have shipped: <p>
+	<table class="w3-table w3-striped">
+		<tr>
+			<th>Invoice</th>
+			<th>Date</th>
+			<th>Tracking Number</th>
+		</tr>
+    <?php
+      if (isset($_SESSION["userID"])) {
+        $userType = $_SESSION["userType"];
+        $user = $_SESSION["userID"];
+        $sql = "SELECT `invoiceNumber`,`_date`,`tracking` FROM `invoice` WHERE `shipped`=1 AND ";
+        if ($userType == "user"){
+          $sql .="userID='$user'";
+        } else {
+          $sql .="memberID='$user'";
+        }
+        $pdo = $conn->query($sql);
+        while ($result = $pdo->fetch()) {
+          echo "<tr><td><form method=\"post\" action=\"showinvoice.php\" target=\"invoice\">";
+          echo "<input type=\"submit\" style=\"font-size:24px\" onclick=\"showInvoice()\" value=\"".$result["invoiceNumber"]."\">";
+          echo "<input type='number' hidden name='invoiceNumber' value='".$result["invoiceNumber"]."'></form></td>";
+          echo "<td>".$result["_date"]."</td>";
+          echo "<td><a href='".$result["tracking"]."'>".$result["tracking"]."</td></tr>";
+        }
+      }
+    ?>
+  </table>
+</div>
+<div id="invoice" class="w3-modal">
+	<div class="w3-modal-content">
+		<div class="w3-container">
+			<span onclick="document.getElementById('invoice').style.display='none'" class="w3-closebtn">&times;</span>
+			<iframe name="invoice" height="400px" width="100%" src="showinvoice.php">invoice</iframe>
+		</div>
+	</div>
+</div>
+<script>
+function showInvoice(){
+  document.getElementById('invoice').style.display='block';
+}
+</script>
 </body>
 <!-- close DB connection -->
 <?php $conn = null;?>
