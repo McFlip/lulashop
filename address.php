@@ -58,7 +58,7 @@ if($mode=="add")
 
 if($mode=="added")
 {
-  mysql_query ("INSERT INTO addressID (street1, street2, city, state, zip, latitude, longitude, appt, ownerID) VALUES ('$addressID', '$street1', '$street2', '$city', 'state', 'zip', 'latitude', 'longitude', 'appt', 'ownerID')");
+  $conn->query ("INSERT INTO addressID (street1, street2, city, state, zip, latitude, longitude, appt, ownerID) VALUES ('$addressID', '$street1', '$street2', '$city', 'state', 'zip', 'latitude', 'longitude', 'appt', 'ownerID')");
 }
 
 /************************************* Updating Address ******************************/
@@ -92,7 +92,7 @@ if($mode=="edit")
 
 if($mode=="edited")
 {
-  mysql_query ("UPDATE address set street1 = '$street1', street2 = '$street2', city = '$city', state = '$state', zip = '$zip', latitude = '$latitude', longitude = '$longitude', appt = '$appt', ownerID = '$ownerID' WHERE addressID = $addressID");
+  $conn->query ("UPDATE address set street1 = '$street1', street2 = '$street2', city = '$city', state = '$state', zip = '$zip', latitude = '$latitude', longitude = '$longitude', appt = '$appt', ownerID = '$ownerID' WHERE addressID = $addressID");
 }
 
 Print "Address Updated!<p>";
@@ -100,30 +100,27 @@ Print "Address Updated!<p>";
 /* Deleting Address */
 if($mode == "remove")
 {
-  mysql_query ("DELETE FROM addressID where addressID = $addressID");
+  $conn->query ("DELETE FROM addressID where addressID = $addressID");
   Print "Address has been removed <p>";
 }
 
 /************************************ Address Form *******************************/
-$data = mysql_query("SELECT * FROM address")
+$data = $conn->query("SELECT * FROM address")
 or die(mysql_error());
 Print "<h2>Address</h2><p>";
 Print "<table border cellpadding=3>";
-Print "addressID</th><th width=100
-<tr><th width=100>street1</th><th
-width=100>
-street2</th><th width=200>
-city</th><th width=100
-state</th><th width=100
-zip</th><th width=100
-latitude</th><th width=100
-longitude</th><th width=100
-appt</th><th width=100
-ownerID</th><th width=100
-colspan=2>Admin</th></tr>";
-Print "<td colspan=5 align=right><a href=" .$_SERVER[’PHP_SELF’]. "?mode=add>Add
-Address</a></td>";
-while($info = mysql_fetch_array( $data ))
+Print "<tr><th width=100>street1</th>
+<th width=100>street2</th>
+<th width=200>city</th>
+<th width=100>state</th>
+<th width=100>zip</th>
+<th width=100>latitude</th>
+<th width=100>longitude</th>
+<th width=100>appt</th>
+<th width=100>ownerID</th></tr>";
+// Print "<td colspan=5 align=right><a href=" .$_SERVER["PHP_SELF"]. "?mode=add>Add
+// Address</a></td>";
+while($info = $data->fetch())
 {
   Print "<td>".$info['street1'] ."</td> ";
   Print "<td>".$info['street2'] ."</td> ";
@@ -144,8 +141,7 @@ while($info = mysql_fetch_array( $data ))
   ."&longitude =" .$info['longitude']
   ."&appt =" .$info['appt']
   ."&ownerID =" .$info['ownerID']
-  ."&mode=edit>Edit</a></td>"; Print "<td><a href=" .$_SERVER[’PHP_SELF’]
-  ."?id=" .$info['id'] ."&mode=remove>Remove</a></td></tr>";
+  ."&mode=edit>Edit</a></td></tr>";
 }
 
 Print "</table>";
