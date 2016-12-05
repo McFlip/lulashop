@@ -44,8 +44,14 @@ if (isset($_SESSION["userID"])) {
       $sql = "UPDATE `inventory`
               SET `quantity`=`quantity`-1
               WHERE `sku`=$sku AND `quantity`>0";
+      $conn->exec($sql);
       $sql = "INSERT INTO `invoiceItem`(quantity,free,invoiceNumber,sku)
               VALUES (1,1,$invoiceNumber,$sku)";
+      $conn->exec($sql);
+    } else if ($_POST['submit'] == "Mark Paid"){
+      $sql = "UPDATE `invoice`
+              SET `paid`=1
+              WHERE `invoiceNumber`=$invoiceNumber";
       $conn->exec($sql);
     }
   }
@@ -127,6 +133,9 @@ if (isset($_SESSION["userID"])) {
     if(empty($invoice['tracking'])){
       echo "<input type='text' name='tracking' class='w3-input w3-border'><label class='w3-validate'>Tracking Number</label>";
       echo "<input type='submit' name='submit' value='Update Tracking #'>";
+    }
+    if(!$invoice['paid']){
+      echo "<br><input type='submit' name='submit' value='Mark Paid'>";
     }
     echo "</form>";
   }
