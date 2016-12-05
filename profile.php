@@ -32,10 +32,20 @@ session_start();
 <body>
 <p> This is where you check on orders that you have purchased, update your addresses, and manage which sellers you follow.</p>
 <div class="w3-container">
-  <h2>Add Address</h2>
-  <form method="get" action="address.php">
+  <h2>My Addresses</h2>
+  <form method="post" action="address.php">
   <button class="w3-btn w3-green w3-large" type="submit" value="Add Address">Add Address</button>
   <input hidden name="mode" value="add">
+  </form>
+  <br>
+  <form method="post" action="address.php">
+  <button class="w3-btn w3-green w3-large" type="submit" value="Add Address">Update Address</button>
+  <input hidden name="mode" value="kevinWTF">
+  </form>
+  <br>
+  <form method="post" action="address.php">
+  <button class="w3-btn w3-green w3-large" type="submit" value="Add Address">Remove Address</button>
+  <input hidden name="mode" value="remove">
   </form>
 </div>
 <div class="w3-container">
