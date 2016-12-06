@@ -47,11 +47,6 @@ session_start();
   <button class="w3-btn w3-green w3-large" type="submit" value="Add Address">Remove Address</button>
   <input hidden name="mode" value="remove">
   </form>
-  <br>
-  <form method="post" action="test.php">
-    <button class="w3-btn w3-green w3-large" type="submit" value="Add Address">Test</button>
-    <input hidden name="mode" value="added">
-  </form>
 </div>
 <div class="w3-container">
   <h2>Manage Who I Follow</h2>
