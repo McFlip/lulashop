@@ -112,7 +112,7 @@ function lookup($string)
     return null;
    }
 
-   print_r($response);
+//    print_r($response);
    $geometry = $response['results'][0]['geometry'];
 
     $longitude = $geometry['location']['lng'];
@@ -138,7 +138,6 @@ echo "<br>".$lookupStr."<br>";
 $array = lookup($lookupStr);
 $latitude = $array['latitude'];
 $longitude = $array['longitude'];
-var_dump($array);
 
 $conn->exec ("INSERT INTO address (street1, street2, city, state, zip, latitude, longitude, appt, ownerID) VALUES ( '$street1', '$street2', '$city', '$state', '$zip', '$latitude', '$longitude', '$appt', '$ownerID')");
 }

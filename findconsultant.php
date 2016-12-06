@@ -54,6 +54,7 @@ $googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIz
       $coord = $pdo->fetch();
       $latitude = $coord['latitude'];
       $longitude = $coord['longitude'];
+      //TODO: Change this to the trig formula instead of the square search
       $sql = "SELECT `memberID`,`addressID`,`firstName`,`lastName`,`email`,`aboutMe`
               FROM `member`,`address`
               WHERE `ownerID`=CONCAT('m_',`memberID`)

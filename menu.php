@@ -16,6 +16,17 @@
   <div class="w3-tag w3-jumbo">U</div>
   <div class="w3-tag w3-jumbo w3-yellow">L</div>
   <div class="w3-tag w3-jumbo">A</div>
+  <div class="w3-container">
+    <?php
+      echo "You are logged in as: ";
+      if(isset($_SESSION['userType'])){
+        echo $_SESSION['userType'];
+      }
+      if(isset($_SESSION['userID'])){
+        echo $_SESSION['userID'];
+      }
+    ?>
+  </div>
 </div>
 
 <!-- Menu Section -->
