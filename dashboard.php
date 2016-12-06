@@ -1,7 +1,10 @@
 <?php
 session_start();
+if($_SESSION["userType"] != "member"){
+  echo "This page is only for sellers.";
+  die();
+}
 ?>
-<!-- TODO: Check the user type -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -9,7 +12,28 @@ session_start();
 
 <head>
   <title>LuLa Shop</title>
-	<?php include 'menu.php'; ?>
+  <?php include 'menu.php'; ?>
+  <style>
+  .error {color: #FF0000;}
+  </style>
+  <?php
+  //TODO: create account for this app
+  $servername = "localhost";
+  $username = "root";
+  $password = "";
+  $dbname = "lulashop";
+  // Connect to the database
+  try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    // set the PDO error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  }
+  catch(PDOException $e)
+  {
+    echo "Connection failed: " . $e->getMessage();
+    die();
+  }
+  ?>
 </head>
 
 <body>
@@ -21,6 +45,24 @@ session_start();
 <div class="w3-container">
   <h2>Create an event</h2>
   <a href="createevent.php"><button class="w3-btn w3-green w3-large">Create Event</button></a>
+</div>
+<div class="w3-container">
+  <h2>Loyal Customers</h2>
+  <h6>Customers who have higher than average number of invoices</h6>
+  <table class="w3-striped">
+    <tr>
+      <th>Customer</th><th>Name</th><th>email</th>
+    </tr>
+      <?php
+      $sql = "SELECT *
+            FROM `loyalty`
+            WHERE `numInvoices` > (SELECT AVG(`numInvoices`) FROM `loyalty`)";
+      $pdo = $conn->query($sql);
+      while ($loyal = $pdo->fetch()){
+        echo "<tr><td>".$loyal['firstName']."</td><td>".$loyal['lastName']."</td><td>".$loyal['email']."</td></tr>";
+      }
+      ?>
+  </table>
 </div>
 </body>
 

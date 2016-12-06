@@ -8,10 +8,10 @@ session_start();
 
 <head>
   <title>LuLa Shop</title>
-	<?php include 'menu.php'; ?>
-	<?php
-	//TODO: create account for this app
-	$servername = "localhost";
+  <?php include 'menu.php'; ?>
+  <?php
+  //TODO: create account for this app
+  $servername = "localhost";
   $username = "root";
   $password = "";
   $dbname = "lulashop";
@@ -42,9 +42,27 @@ $googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIz
               WHERE `ownerID`=CONCAT('m_',`memberID`)
               AND `address`.`state`='$state'
               AND `address`.`city`='$city'";
-      //TODO: Insert other sql statements here***************************************************
-      //} else if
-    } else {
+    }
+    else if(isset($_POST["bySavedAddr"]))
+    {
+      $addressID = $_POST['addressID'];
+      $radius = $_POST['searchArea'] / 2;
+      $sql = "SELECT `latitude`,`longitude`
+              FROM `address`
+              WHERE `addressID`=$addressID";
+      $pdo = $conn->query($sql);
+      $coord = $pdo->fetch();
+      $latitude = $coord['latitude'];
+      $longitude = $coord['longitude'];
+      $sql = "SELECT `memberID`,`addressID`,`firstName`,`lastName`,`email`,`aboutMe`
+              FROM `member`,`address`
+              WHERE `ownerID`=CONCAT('m_',`memberID`)
+              AND `latitude` > $latitude - $radius
+              AND `latitude` < $latitude + $radius
+              AND `longitude` > $longitude - $radius
+              AND `longitude` < $longitude + $radius";
+    }
+    else {
       $sql = "SELECT `memberID`,`addressID`,`firstName`,`lastName`,`email`,`aboutMe`
               FROM `member`,`address`
               WHERE `ownerID`=CONCAT('m_',`memberID`)";
@@ -102,12 +120,12 @@ $googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIz
 </ul>
 
 <div id="savedAddress" class="searchAddress">
-	<div class="w3-container w3-teal">
-		<h3>Search using your saved addresses. You must be logged in to use saved addresses.</h3>
-	</div>
-	<form class="w3-container">
-		<div class="w3-row-padding">
-			<div class="w3-rest">
+  <div class="w3-container w3-teal">
+    <h3>Search using your saved addresses. You must be logged in to use saved addresses.</h3>
+  </div>
+  <form class="w3-container" method="post" action="findconsultant.php">
+    <div class="w3-row-padding">
+      <div class="w3-rest">
         <select class="w3-select" name="addressID">
         <?php
         $sql = "SELECT * FROM `address` WHERE `ownerID`=CONCAT(\"u_\",\"$userID\")";
@@ -126,32 +144,32 @@ $googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIz
         ?>
         </select>
         <label class="w3-label w3-validate">address</label>
-			</div>
+      </div>
     </div>
-		<div class="w3-row-padding">
-			<div class="w3-quarter">
-				<select class="w3-select" name="searchArea">
-					<option value="" disabled selected>Choose search size</option>
-					<option value="10">10</option>
-					<option value="20">20</option>
-					<option value="50">50</option>
-				</select>
-				<input class="w3-button" type="submit" value="Search">
-			</div>
-		</div>
-	</form>
+    <div class="w3-row-padding">
+      <div class="w3-quarter">
+        <select class="w3-select" name="searchArea">
+          <option value="" disabled selected>Choose search size</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+        <input class="w3-button" type="submit" name ="bySavedAddr" value="Search">
+      </div>
+    </div>
+  </form>
 </div>
 
 <div id="pickCity" class="searchAddress">
-	<div class="w3-container w3-teal">
-		<h3>Search by city. First pick your state, then the city.</h3>
-	</div>
-	<form class="w3-container" method="post" action="findconsultant.php">
-		<div class="w3-row-padding">
-			<div class="w3-quarter">
-				<label>State</label>
-				<input list="states" name="state">
-				<datalist id="states">
+  <div class="w3-container w3-teal">
+    <h3>Search by city. First pick your state, then the city.</h3>
+  </div>
+  <form class="w3-container" method="post" action="findconsultant.php">
+    <div class="w3-row-padding">
+      <div class="w3-quarter">
+        <label>State</label>
+        <input list="states" name="state">
+        <datalist id="states">
           <?php
           $sql = "SELECT DISTINCT `state`
                   FROM `address`";
@@ -160,67 +178,67 @@ $googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIz
             echo "<option value='$st'>";
           }
           ?>
-				</datalist>
-			</div>
-			<div class="w3-half">
-				<label>City</label>
-				<input list="cities" name="city">
-				<datalist id="cities">
-				<?php
-				//TODO: use ajax to narrow cities to match selected state
-				$sql = "SELECT DISTINCT `city`
-				FROM `address`";
+        </datalist>
+      </div>
+      <div class="w3-half">
+        <label>City</label>
+        <input list="cities" name="city">
+        <datalist id="cities">
+        <?php
+        //TODO: use ajax to narrow cities to match selected state
+        $sql = "SELECT DISTINCT `city`
+        FROM `address`";
         $pdo = $conn->query($sql);
         while ($c = $pdo->fetchColumn()){
           echo "<option value='$c'>";
         }
         ?>
         </datalist>
-			</div>
-		</div>
-		<div class="w3-row-padding">
-			<input class="w3-button" type="submit" name="byCity" value="Search">
-		</div>
-	</form>
+      </div>
+    </div>
+    <div class="w3-row-padding">
+      <input class="w3-button" type="submit" name="byCity" value="Search">
+    </div>
+  </form>
 </div>
 <div id="enterAddress" class="searchAddress">
-	<div class="w3-container w3-teal">
-		<h3>Search by specifying an address and a search area in square miles.</h2>
-	</div>
-	<form class="w3-container">
-		<div class="w3-row-padding">
-			<div class="w3-quarter">
-				<label>Street1</label>
-				<input class="w3-input w3-border" type="text" name="street1" placeholder="street1">
-			</div>
-			<div class="w3-quarter">
-				<label>Street2</label>
-				<input class="w3-input w3-border" type="text" name="street2" placeholder="street2">
-			</div>
-			<div class="w3-quarter">
-				<label>State</label>
-				<select class="w3-select w3-border" name="state" placeholder="Choose State">
-					<option value="" disabled selected>Choose state</option>
-					<option value="fl">fl</option>
-				</select>
-			</div>
-			<div class="w3-quarter">
-				<label>City</label>
-				<input class="w3-input w3-border" type="text" name="city" placeholder="city">
-			</div>
-		</div>
-		<div class="w3-row-padding">
-			<div class="w3-quarter">
-				<select class="w3-select" name="searchArea">
-					<option value="" disabled selected>Choose search size</option>
-					<option value="10">10</option>
-					<option value="20">20</option>
-					<option value="50">50</option>
-				</select>
-				<input class="w3-button" type="submit" value="Search">
-			</div>
-		</div>
-	</form>
+  <div class="w3-container w3-teal">
+    <h3>Search by specifying an address and a search area in square miles.</h2>
+  </div>
+  <form class="w3-container">
+    <div class="w3-row-padding">
+      <div class="w3-quarter">
+        <label>Street1</label>
+        <input class="w3-input w3-border" type="text" name="street1" placeholder="street1">
+      </div>
+      <div class="w3-quarter">
+        <label>Street2</label>
+        <input class="w3-input w3-border" type="text" name="street2" placeholder="street2">
+      </div>
+      <div class="w3-quarter">
+        <label>State</label>
+        <select class="w3-select w3-border" name="state" placeholder="Choose State">
+          <option value="" disabled selected>Choose state</option>
+          <option value="fl">fl</option>
+        </select>
+      </div>
+      <div class="w3-quarter">
+        <label>City</label>
+        <input class="w3-input w3-border" type="text" name="city" placeholder="city">
+      </div>
+    </div>
+    <div class="w3-row-padding">
+      <div class="w3-quarter">
+        <select class="w3-select" name="searchArea">
+          <option value="" disabled selected>Choose search size</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+        <input class="w3-button" type="submit" value="Search">
+      </div>
+    </div>
+  </form>
 </div>
 
 <script>
@@ -229,7 +247,7 @@ function openSearch(searchMethod) {
     var i;
     var x = document.getElementsByClassName("searchAddress");
     for (i = 0; i < x.length; i++) {
-       x[i].style.display = "none";
+      x[i].style.display = "none";
     }
     document.getElementById(searchMethod).style.display = "block";
 }
@@ -239,7 +257,7 @@ function openSearch(searchMethod) {
   &attribution_source=LuLa+Shop
   &attribution_web_url=http://localhost/lulashop/findconsultant.php -->
 <div class="w3-container w3-center">
-	<iframe height="500px" width="500px" src=<?php echo "$googleMap"; ?> allowfullscreen>" name="map"></iframe>
+  <iframe height="500px" width="500px" src=<?php echo "$googleMap"; ?> allowfullscreen>" name="map"></iframe>
 </div>
 </body>
 

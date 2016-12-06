@@ -64,7 +64,6 @@ if (isset($_POST["appt"])){
 if (isset($_POST["ownerID"])){
   $ownerID = $_POST["ownerID"];
 }
-//$addressARR = array($addressID,$street1,$street2,$city,$state,$zip,$latitude,$longitude,$appt,$ownerID);
 $userType = $_SESSION["userType"];
 $ID = $_SESSION["userID"];
 if ($userType == "member"){
@@ -96,9 +95,52 @@ if($mode=="add")
 
 if($mode=="added")
 {
-  $latitude = 0.0;
-  $longitude = 0.0;
-  $conn->exec ("INSERT INTO address (street1, street2, city, state, zip, latitude, longitude, appt, ownerID) VALUES ( '$street1', '$street2', '$city', '$state', '$zip', '$latitude', '$longitude', '$appt', '$ownerID')");
+// Function using JSON
+function lookup($string)
+{
+    $string = str_replace (" ", "+", urlencode($string));
+    $details_url = "http://maps.googleapis.com/maps/api/geocode/json?address=".$string."&sensor=false";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $details_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $response = json_decode(curl_exec($ch), true);
+
+   // If Status Code is ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED or INVALID_REQUEST
+   if ($response['status'] != 'OK')
+   {
+    return null;
+   }
+
+   print_r($response);
+   $geometry = $response['results'][0]['geometry'];
+
+    $longitude = $geometry['location']['lng'];
+    $latitude = $geometry['location']['lat'];
+
+    $array = array(
+        'latitude' => $geometry['location']['lat'],
+        'longitude' => $geometry['location']['lng'],
+        'location_type' => $geometry['location_type'],
+    );
+
+    return $array;
+}
+// End of JSON function
+
+// $city = $_POST['city'];
+$addressARR = array($street1,$street2,$city,$state,$zip);
+$lookupStr = "";
+foreach ($addressARR as $addr){
+  $lookupStr .= $addr." ";
+}
+echo "<br>".$lookupStr."<br>";
+$array = lookup($lookupStr);
+$latitude = $array['latitude'];
+$longitude = $array['longitude'];
+var_dump($array);
+
+$conn->exec ("INSERT INTO address (street1, street2, city, state, zip, latitude, longitude, appt, ownerID) VALUES ( '$street1', '$street2', '$city', '$state', '$zip', '$latitude', '$longitude', '$appt', '$ownerID')");
 }
 
 /************************************* Updating Address ******************************/
