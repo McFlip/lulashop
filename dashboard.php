@@ -33,6 +33,7 @@ if($_SESSION["userType"] != "member"){
     echo "Connection failed: " . $e->getMessage();
     die();
   }
+  $userID = $_SESSION['userID'];
   ?>
 </head>
 
@@ -60,6 +61,33 @@ if($_SESSION["userType"] != "member"){
       $pdo = $conn->query($sql);
       while ($loyal = $pdo->fetch()){
         echo "<tr><td>".$loyal['firstName']."</td><td>".$loyal['lastName']."</td><td>".$loyal['email']."</td></tr>";
+      }
+      ?>
+  </table>
+</div>
+<div class="w3-container">
+  <h2>Stale Inventory</h2>
+  <h6>Inventory that is more than two months old</h6>
+  <table class="w3-striped">
+    <tr>
+      <th>Date added</th><th>SKU</th><th>Style</th><th>size</th>
+    </tr>
+      <?php
+      $date = new DateTime(null, new DateTimeZone('UTC'));
+      date_sub($date,date_interval_create_from_date_string("2 months"));
+      $sql = "SELECT `_date`,`sku`,`category`,`size`
+            FROM `inventory`
+            WHERE `memberID` = $userID
+            AND `quantity` > 0
+            AND UNIX_TIMESTAMP(`_date`) <".date_timestamp_get($date);
+      try{
+        $pdo = $conn->query($sql);
+      } catch(PDOException $e) {
+        echo "stale failed: " . $e->getMessage();
+        die();
+      }
+      while ($stale = $pdo->fetch()){
+        echo "<tr><td>".$stale['_date']."</td><td>".$stale['sku']."</td><td>".$stale['category']."</td><td>".$stale['size']."</tr>";
       }
       ?>
   </table>
