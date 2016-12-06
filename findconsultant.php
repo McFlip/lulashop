@@ -44,7 +44,19 @@ $googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIz
               AND `address`.`city`='$city'";
       //TODO: Insert other sql statements here***************************************************
       //} else if
-    } else {
+    }
+    else if(isset($_POST["bySavedAddr"]))
+    {
+        $state = $_POST["state"];
+        $city = $_POST["city"];
+	$sql =  
+	$sql = "SELECT `memberID`,`addressID`,`firstName`,`lastName`,`email`,`aboutMe`
+              FROM `member`,`address`
+              WHERE `ownerID`=CONCAT('m_',`memberID`)
+              AND `address`.`state`='$state'
+              AND `address`.`city`='$city'";
+    }
+    else {
       $sql = "SELECT `memberID`,`addressID`,`firstName`,`lastName`,`email`,`aboutMe`
               FROM `member`,`address`
               WHERE `ownerID`=CONCAT('m_',`memberID`)";
@@ -136,7 +148,7 @@ $googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIz
 					<option value="20">20</option>
 					<option value="50">50</option>
 				</select>
-				<input class="w3-button" type="submit" value="Search">
+				<input class="w3-button" type="submit" name ="bySavedAddr" value="Search">
 			</div>
 		</div>
 	</form>
