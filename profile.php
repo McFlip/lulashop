@@ -49,6 +49,12 @@ session_start();
   </form>
 </div>
 <div class="w3-container">
+  <h2>Manage Who I Follow</h2>
+  <form method="post" action="follow.php">
+  <button class="w3-btn w3-green w3-large" type="submit" value="Add Address">Manage</button>
+  </form>
+</div>
+<div class="w3-container">
 	<p> The following orders have not shipped yet: <p>
 	<table class="w3-table w3-striped">
 		<tr>

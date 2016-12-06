@@ -31,27 +31,67 @@ session_start();
 
 <body>
 <?php
+$userID = $_SESSION['userID'];
+$googleMap = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIzZQ8rHL_r_Ghr1b0-jK5I";
   if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(isset($_POST["byCity"])){
       $state = $_POST["state"];
       $city = $_POST["city"];
-      $sql = "SELECT `memberID`,`fistName`,`lastName`,`email`,`aboutMe`
-              FROM `member`,address`
-              WHERE =`address`.`ownerID` LIKE CONCAT('m_',`member`.`memberID`)";
-//               AND `address`.`state`=$state
-//               AND `address`.`city`=$city";
-      $pdo = $conn->query($sql);
-      echo "<table class='w3-striped'>
-            <tr><th>Consultant</th><th>Name</th><th>email</th><th>about me</th><th>FOLLOW ME</th></tr>";
-      while ($consultant = $pdo->fetch()){
-        echo "<tr><td>".$consultant['firstName']."</td><td>".$consultant['lastName']."</td><td>".$consultant['email']."</td><td>".$consultant['aboutMe']."</td><td>
-        <form method='post' action='follow.php'>
-          <input hidden name='memberID' value=".$consultant['memberID'].">
-          <input type='submit' value='follow'>
-        </form></td></tr>";
-      }
-      echo "</table>";
+      $sql = "SELECT `memberID`,`addressID`,`firstName`,`lastName`,`email`,`aboutMe`
+              FROM `member`,`address`
+              WHERE `ownerID`=CONCAT('m_',`memberID`)
+              AND `address`.`state`='$state'
+              AND `address`.`city`='$city'";
+      //TODO: Insert other sql statements here***************************************************
+      //} else if
+    } else {
+      $sql = "SELECT `memberID`,`addressID`,`firstName`,`lastName`,`email`,`aboutMe`
+              FROM `member`,`address`
+              WHERE `ownerID`=CONCAT('m_',`memberID`)";
     }
+    echo $sql;
+    $pdo = $conn->query($sql);
+    echo "<table class='w3-striped'>
+          <tr><th>Consultant</th><th>Name</th><th>email</th><th>about me</th><th>FOLLOW ME</th><th>Show on Map</th></tr>";
+    //TODO: hide the follow button for members that the user is already following
+    while ($consultant = $pdo->fetch()){
+      echo "<tr><td>".$consultant['firstName']."</td><td>".$consultant['lastName']."</td><td>".$consultant['email']."</td><td>".$consultant['aboutMe']."</td><td>
+      <form method='post' action='follow.php'>
+      <input hidden name='memberID' value=".$consultant['memberID'].">
+      <input type='submit' name='follow' value='follow'>";
+      if(isset($_POST["byCity"])){
+        echo "<input hidden name='byCity'value='x'>
+        <input hidden name='city' value='".$city."'>
+        <input hidden name='state' value='".$state."'>";
+      }
+      echo "</form></td>
+      <td><form method='post' action='findconsultant.php'>
+      <input hidden name='addressID' value=".$consultant['addressID'].">
+      <input type='submit' name='showMap' value='Show on Map'>";
+      if(isset($_POST["byCity"])){
+        echo "<input hidden name='byCity'value='x'>
+        <input hidden name='city' value='".$city."'>
+        <input hidden name='state' value='".$state."'>";
+      }
+      echo "</form></td></tr>";
+    }
+    echo "</table>";
+    if(isset($_POST["showMap"])){ //TODO:put this in a modal
+      $sql = "SELECT * FROM `address` WHERE `addressID`=".$_POST["addressID"];
+      $pdo = $conn->query($sql);
+      $address = $pdo->fetch();
+      //TODO: use latitude and longitude instead
+      $googleMap .= "&q=".urlencode($address['street1'])."+".
+                    urlencode($address['street2'])."+".
+                    urlencode($address['appt'])."+".
+                    urlencode($address['city'])."+".
+                    urlencode($address['state'])."+".
+                    urlencode($address['zip']);
+    } else {
+      $googleMap .= "&q=Florida+State+University";
+    }
+  } else {
+    $googleMap .= "&q=Florida+State+University";
   }
 ?>
 <p> This is where you find consultants </p>
@@ -67,29 +107,27 @@ session_start();
 	</div>
 	<form class="w3-container">
 		<div class="w3-row-padding">
-			<div class="w3-quarter">
-				<p><input class="w3-radio" type="radio" name="address" value="1" checked></p>
-				<label class="w3-validate">
-					<div class="w3-card-4">
-						<p>FriendlyName</p>
-						<p>Street1</p>
-						<p>Street2</p>
-						<p>City, St, Zip</p>
-					</div>
-				</label>
+			<div class="w3-rest">
+        <select class="w3-select" name="addressID">
+        <?php
+        $sql = "SELECT * FROM `address` WHERE `ownerID`=CONCAT(\"u_\",\"$userID\")";
+        $pdo = $conn->query($sql);
+        while ($result = $pdo->fetch()) {
+          echo "<option value=\"".$result['addressID']."\"";
+          if ($_SERVER["REQUEST_METHOD"] == "POST"){
+            if ($result['addressID'] == $addressID){
+              echo "selected";
+            }
+          }
+          echo ">";
+          echo $result['street1']." ".$result['street2']." ".$result['appt']." ".$result['city']." ".$result['state']." ".$result['zip'];
+          echo "</option>";
+        }
+        ?>
+        </select>
+        <label class="w3-label w3-validate">address</label>
 			</div>
-			<div class="w3-quarter">
-				<p><input class="w3-radio" type="radio" name="address" value="2"></p>
-				<label class="w3-validate">
-					<div class="w3-card-4">
-						<p>FriendlyName</p>
-						<p>Street1</p>
-						<p>Street2</p>
-						<p>City, St, Zip</p>
-					</div>
-				</label>
-			</div>
-		</div>
+    </div>
 		<div class="w3-row-padding">
 			<div class="w3-quarter">
 				<select class="w3-select" name="searchArea">
@@ -201,7 +239,7 @@ function openSearch(searchMethod) {
   &attribution_source=LuLa+Shop
   &attribution_web_url=http://localhost/lulashop/findconsultant.php -->
 <div class="w3-container w3-center">
-	<iframe height="500px" width="500px" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCUEb0gUKh0MIzZQ8rHL_r_Ghr1b0-jK5I&q=Florida+State+University" allowfullscreen>" name="map"></iframe>
+	<iframe height="500px" width="500px" src=<?php echo "$googleMap"; ?> allowfullscreen>" name="map"></iframe>
 </div>
 </body>
 
